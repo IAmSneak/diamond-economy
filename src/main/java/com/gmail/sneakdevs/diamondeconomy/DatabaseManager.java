@@ -121,4 +121,22 @@ public class DatabaseManager {
         }
         return rankings.concat("Your rank is: " + playerRank);
     }
+
+    public void setName(String uuid, String name, int money) {
+        String sql = "UPDATE diamonds SET name = ? , "
+                + "money = ? "
+                + "WHERE uuid = ?";
+
+        try (Connection conn = this.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(3, uuid);
+            pstmt.setInt(2, money);
+            pstmt.setString(1, name);
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException ignored) {
+        }
+    }
 }

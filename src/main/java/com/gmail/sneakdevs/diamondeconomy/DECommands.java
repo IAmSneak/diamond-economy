@@ -145,29 +145,21 @@ public class DECommands {
     private static int depositCommand(CommandContext<ServerCommandSource> ctx, int amount) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         DatabaseManager dm = new DatabaseManager();
-        int slot;
         int diamondCount = 0;
         int bal = dm.getBalance(player.getUuidAsString());
 
         int newValue = bal + amount;
         if (newValue < Integer.MAX_VALUE && newValue >= 0) {
-            do {
-                slot = player.getInventory().getSlotWithStack(new ItemStack(Items.DIAMOND));
-                if (slot != -1) {
-                    diamondCount += player.getInventory().getStack(slot).getCount();
-                    player.getInventory().setStack(slot, new ItemStack(Items.AIR));
+            for (int i = 0; i < 36; i++) {
+                System.out.println("repeat");
+                if (player.getInventory().getStack(i).getItem().equals(Items.DIAMOND)) {
+                    diamondCount += player.getInventory().getStack(i).getCount();
+                    player.getInventory().setStack(i, new ItemStack(Items.AIR));
+                } else if (player.getInventory().getStack(i).getItem().equals(Items.DIAMOND_BLOCK)){
+                    diamondCount += player.getInventory().getStack(i).getCount() * 9;
+                    player.getInventory().setStack(i, new ItemStack(Items.AIR));
                 }
             }
-            while (slot != -1);
-
-            do {
-                slot = player.getInventory().getSlotWithStack(new ItemStack(Items.DIAMOND_BLOCK));
-                if (slot != -1) {
-                    diamondCount += player.getInventory().getStack(slot).getCount() * 9;
-                    player.getInventory().setStack(slot, new ItemStack(Items.AIR));
-                }
-            }
-            while (slot != -1);
 
             if (amount == 0) {
                 newValue = bal + diamondCount;
