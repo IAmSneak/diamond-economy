@@ -36,7 +36,7 @@ public class DatabaseManager {
         String sql = "CREATE TABLE IF NOT EXISTS diamonds (\n"
                 + "	uuid text PRIMARY KEY,\n"
                 + "	name text NOT NULL,\n"
-                + "	diamonds integer DEFAULT 0\n"
+                + "	money integer DEFAULT 0\n"
                 + ");";
 
         try (Connection conn = DriverManager.getConnection(url);
@@ -49,7 +49,7 @@ public class DatabaseManager {
     }
 
     public void addPlayer(String uuid, String name) {
-        String sql = "INSERT INTO diamonds(uuid,name,diamonds) VALUES(?,?,?)";
+        String sql = "INSERT INTO diamonds(uuid,name,money) VALUES(?,?,?)";
 
         try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)){
             pstmt.setString(1, uuid);
@@ -61,46 +61,44 @@ public class DatabaseManager {
     }
 
     public int getBalance(String uuid){
-        String sql = "SELECT uuid, diamonds FROM diamonds";
-
-        System.out.println("called");
+        String sql = "SELECT uuid, money FROM diamonds";
 
         try (Connection conn = this.connect();
              Statement stmt  = conn.createStatement();
              ResultSet rs    = stmt.executeQuery(sql)){
 
-            System.out.println("called1");
             // loop through the result set
             while (rs.next()) {
-                if(rs.getString("uuid").equals(uuid)) {
-                    return rs.getInt("diamonds");
+                if (rs.getString("uuid").equals(uuid)) {
+                    return rs.getInt("money");
                 }
             }
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
         return -1;
     }
 
-    public void setBalance(String uuid, String name, int diamonds) {
-        String sql = "UPDATE diamonds SET uuid = ? , "
-                + "diamonds = ? "
-                + "WHERE name = ?";
+    public void setBalance(String uuid, String name, int money) {
+        String sql = "UPDATE diamonds SET name = ? , "
+                + "money = ? "
+                + "WHERE uuid = ?";
 
         try (Connection conn = this.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
-            pstmt.setString(1, uuid);
-            pstmt.setInt(2, diamonds);
-            pstmt.setString(3, name);
+            pstmt.setString(3, uuid);
+            pstmt.setInt(2, money);
+            pstmt.setString(1, name);
             // update
             pstmt.executeUpdate();
         } catch (SQLException ignored) {
         }
     }
 
-    public String top(String name, int topAmount){
-        String sql = "SELECT uuid, name, diamonds FROM diamonds ORDER BY diamonds DESC";
+    public String top(String uuid, int topAmount){
+        String sql = "SELECT uuid, name, money FROM diamonds ORDER BY money DESC";
         String rankings = "";
         int i = 0;
         int playerRank = 0;
@@ -112,11 +110,11 @@ public class DatabaseManager {
             // loop through the result set
             while (rs.next() && (i < topAmount || playerRank == 0)) {
                 i++;
-                if (name.equals(rs.getString(2))) {
+                if (uuid.equals(rs.getString("uuid"))) {
                     playerRank = i;
                 }
                 if (i <= topAmount) {
-                    rankings = rankings.concat(rs.getString(2) + "  " + rs.getInt(3) + "\n");
+                    rankings = rankings.concat(rs.getString("name") + "  " + rs.getInt("money") + "\n");
                 }
             }
         } catch (SQLException ignored) {

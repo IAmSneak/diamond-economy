@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.WorldSavePath;
 
-public class DiamondEconomy implements DedicatedServerModInitializer {
+public class DiamondEconomy implements ModInitializer {
     public static final String MODID = "diamondeconomy";
 
     private static void serverStarting(MinecraftServer server){
@@ -15,11 +15,9 @@ public class DiamondEconomy implements DedicatedServerModInitializer {
     }
 
     @Override
-    public void onInitializeServer() {
+    public void onInitialize() {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            if (dedicated) {
-                DECommands.register(dispatcher);
-            }
+            DECommands.register(dispatcher);
         });
         ServerLifecycleEvents.SERVER_STARTING.register(DiamondEconomy::serverStarting);
     }

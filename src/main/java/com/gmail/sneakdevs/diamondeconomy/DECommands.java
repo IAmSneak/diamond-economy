@@ -252,7 +252,7 @@ public class DECommands {
     private static int topCommand(CommandContext<ServerCommandSource> ctx, int topAmount) throws CommandSyntaxException {
         DatabaseManager dm = new DatabaseManager();
         ServerPlayerEntity player1 = ctx.getSource().getPlayer();
-        ctx.getSource().sendFeedback(new LiteralText(dm.top(player1.getName().asString(), topAmount)), false);
+        ctx.getSource().sendFeedback(new LiteralText(dm.top(player1.getUuidAsString(), topAmount)), false);
         return 1;
     }
 

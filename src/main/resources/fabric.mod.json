@@ -17,7 +17,7 @@
 
   "environment": "*",
   "entrypoints": {
-    "server": [
+    "main": [
       "com.gmail.sneakdevs.diamondeconomy.DiamondEconomy"
     ]
   },
