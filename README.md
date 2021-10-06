@@ -14,7 +14,7 @@ Basic economy using diamonds. Uses the "/diamonds" command along with the follow
 Operator only subcommands:
 
 - give [players] [int] - gives [int] diamonds to [players]
-- 
+
 - take [players] [int] - takes [int] diamonds from [players]
-- 
+ 
 - set [players] [int] - sets players diamonds to [int]
