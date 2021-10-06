@@ -151,7 +151,6 @@ public class DECommands {
         int newValue = bal + amount;
         if (newValue < Integer.MAX_VALUE && newValue >= 0) {
             for (int i = 0; i < 36; i++) {
-                System.out.println("repeat");
                 if (player.getInventory().getStack(i).getItem().equals(Items.DIAMOND)) {
                     diamondCount += player.getInventory().getStack(i).getCount();
                     player.getInventory().setStack(i, new ItemStack(Items.AIR));
