@@ -1,4 +1,4 @@
-Basic economy using diamonds. Uses the "/diamonds" command along with the following subcommands
+Basic economy for the fabric modloader using diamonds as currency. Uses the "/diamonds" command along with the following subcommands
 
 - balance [Optional: player] - tells user how many diamonds the player has
 
