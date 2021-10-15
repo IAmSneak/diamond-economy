@@ -23,7 +23,7 @@ public class DECommands {
                         .then(
                                 CommandManager.literal("top")
                                         .then(
-                                                CommandManager.argument("amount", IntegerArgumentType.integer(1))
+                                                CommandManager.argument("amount", IntegerArgumentType.integer(1, 20))
                                                         .executes(e -> {
                                                             int amount = IntegerArgumentType.getInteger(e, "amount");
                                                             return topCommand(e, amount);
@@ -252,12 +252,12 @@ public class DECommands {
         ServerPlayerEntity player1 = ctx.getSource().getPlayer();
 
         int bal = dm.getBalance(player1.getUuidAsString());
-        int newValue = dm.getBalance(player.getUuidAsString());
+        int newValue = dm.getBalance(player.getUuidAsString()) + amount;
 
         if (!player.getUuidAsString().equals(player1.getUuidAsString())) {
             if (bal >= amount) {
                 if (newValue < Integer.MAX_VALUE && newValue > 0) {
-                    dm.setBalance(player.getUuidAsString(), player.getName().asString(), dm.getBalance(player.getUuidAsString()) + amount);
+                    dm.setBalance(player.getUuidAsString(), player.getName().asString(), newValue);
                     dm.setBalance(player1.getUuidAsString(), player1.getName().asString(), bal - amount);
 
                     player.sendMessage(new LiteralText("You received " + amount + " diamonds from " + player1.getName().asString()), false);
