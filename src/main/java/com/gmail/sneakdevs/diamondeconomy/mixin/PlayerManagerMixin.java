@@ -17,6 +17,6 @@ public class PlayerManagerMixin {
         String uuid = player.getUuidAsString();
         String name = player.getName().asString();
         dm.addPlayer(uuid, name);
-        //dm.setName(uuid, name, dm.getBalance(player.getUuidAsString()));
+        dm.setName(uuid, name);
     }
 }

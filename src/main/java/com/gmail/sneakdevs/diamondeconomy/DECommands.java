@@ -2,6 +2,7 @@ package com.gmail.sneakdevs.diamondeconomy;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.argument.EntityArgumentType;
@@ -34,13 +35,20 @@ public class DECommands {
                         .then(
                                 CommandManager.literal("balance")
                                         .then(
-                                                CommandManager.argument("player", EntityArgumentType.player())
+                                                CommandManager.argument("playerName", StringArgumentType.string())
                                                         .executes(e -> {
-                                                            ServerPlayerEntity player = EntityArgumentType.getPlayer(e, "player");
-                                                            return balanceCommand(e, player);
+                                                            String string = StringArgumentType.getString(e, "playerName");
+                                                            return balanceCommandFromName(e, string);
                                                         })
                                         )
-                                        .executes(e -> balanceCommand(e, null))
+                                        .then(
+                                                CommandManager.argument("player", EntityArgumentType.player())
+                                                        .executes(e -> {
+                                                            String player = EntityArgumentType.getPlayer(e, "player").getName().asString();
+                                                            return balanceCommandFromName(e, player);
+                                                        })
+                                        )
+                                        .executes(DECommands::balanceCommand)
                         )
 
                         .then(
@@ -129,9 +137,9 @@ public class DECommands {
         String uuid = player.getUuidAsString();
         String name = player.getName().asString();
 
-        if (dm.getBalance(uuid) >= amount) {
+        if (dm.getBalanceFromUUID(uuid) >= amount) {
             dropDiamonds(amount, player);
-            dm.setBalance(uuid, name, dm.getBalance(uuid) - amount);
+            dm.setBalance(uuid, name, dm.getBalanceFromUUID(uuid) - amount);
             ctx.getSource().sendFeedback(new LiteralText("Withdrew " + amount + " diamonds"), false);
 
             return 1;
@@ -146,7 +154,7 @@ public class DECommands {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         DatabaseManager dm = new DatabaseManager();
         int diamondCount = 0;
-        int bal = dm.getBalance(player.getUuidAsString());
+        int bal = dm.getBalanceFromUUID(player.getUuidAsString());
 
         int newValue = bal + amount;
         if (newValue < Integer.MAX_VALUE && newValue >= 0) {
@@ -191,10 +199,10 @@ public class DECommands {
         DatabaseManager dm = new DatabaseManager();
 
         players.forEach(player -> {
-            if (amount > dm.getBalance(player.getUuidAsString())) {
+            if (amount > dm.getBalanceFromUUID(player.getUuidAsString())) {
                 dm.setBalance(player.getUuidAsString(), player.getName().asString(), 0);
             } else {
-                dm.setBalance(player.getUuidAsString(), player.getName().asString(), dm.getBalance(player.getUuidAsString()) - amount);
+                dm.setBalance(player.getUuidAsString(), player.getName().asString(), dm.getBalanceFromUUID(player.getUuidAsString()) - amount);
             }
         });
 
@@ -206,9 +214,9 @@ public class DECommands {
         DatabaseManager dm = new DatabaseManager();
 
         players.forEach(player -> {
-            int newValue = dm.getBalance(player.getUuidAsString()) + amount;
+            int newValue = dm.getBalanceFromUUID(player.getUuidAsString()) + amount;
             if (newValue < Integer.MAX_VALUE && newValue > 0) {
-                dm.setBalance(player.getUuidAsString(), player.getName().asString(), dm.getBalance(player.getUuidAsString()) + amount);
+                dm.setBalance(player.getUuidAsString(), player.getName().asString(), dm.getBalanceFromUUID(player.getUuidAsString()) + amount);
                 ctx.getSource().sendFeedback(new LiteralText("Gave " + players.size() + " players " + amount + " diamonds"), false);
             } else {
                 ctx.getSource().sendFeedback(new LiteralText("That would go over the max value for " + player.getName().asString()), false);
@@ -226,17 +234,26 @@ public class DECommands {
         return players.size();
     }
 
-    private static int balanceCommand(CommandContext<ServerCommandSource> ctx, @Nullable ServerPlayerEntity player) throws CommandSyntaxException {
+    private static int balanceCommand(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         DatabaseManager dm = new DatabaseManager();
-        if(player == null) {
-            player = ctx.getSource().getPlayer();
-        }
-        int bal = dm.getBalance(player.getUuidAsString());
+        String player = ctx.getSource().getPlayer().getName().asString();
+        int bal = dm.getBalanceFromName(player);
         if (bal > -1) {
-            ctx.getSource().sendFeedback(new LiteralText(player.getName().asString() + " has " + bal + " diamonds"), false);
+            ctx.getSource().sendFeedback(new LiteralText(player + " has " + bal + " diamonds"), false);
             return 0;
         }
-        ctx.getSource().sendFeedback(new LiteralText("No account was found for player with the name \"" + player.getName().asString() + "\""), false);
+        ctx.getSource().sendFeedback(new LiteralText("No account was found for player with the name \"" + player + "\""), false);
+        return 1;
+    }
+
+    private static int balanceCommandFromName(CommandContext<ServerCommandSource> ctx, String player) {
+        DatabaseManager dm = new DatabaseManager();
+        int bal = dm.getBalanceFromName(player);
+        if (bal > -1) {
+            ctx.getSource().sendFeedback(new LiteralText(player + " has " + bal + " diamonds"), false);
+            return 0;
+        }
+        ctx.getSource().sendFeedback(new LiteralText("No account was found for player with the name \"" + player + "\""), false);
         return 1;
     }
 
@@ -251,8 +268,8 @@ public class DECommands {
         DatabaseManager dm = new DatabaseManager();
         ServerPlayerEntity player1 = ctx.getSource().getPlayer();
 
-        int bal = dm.getBalance(player1.getUuidAsString());
-        int newValue = dm.getBalance(player.getUuidAsString()) + amount;
+        int bal = dm.getBalanceFromUUID(player1.getUuidAsString());
+        int newValue = dm.getBalanceFromUUID(player.getUuidAsString()) + amount;
 
         if (!player.getUuidAsString().equals(player1.getUuidAsString())) {
             if (bal >= amount) {

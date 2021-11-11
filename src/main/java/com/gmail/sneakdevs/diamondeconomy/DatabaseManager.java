@@ -1,13 +1,28 @@
 package com.gmail.sneakdevs.diamondeconomy;
 
+import com.google.gson.JsonParser;
+
+import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.*;
 import java.sql.*;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Scanner;
+import java.util.UUID;
 
 public class DatabaseManager {
-
+    private static final JsonParser PARSER = new JsonParser();
     public static String url;
 
     public static void createNewDatabase(File file) {
+
         url = "jdbc:sqlite:" + file.getPath().replace('\\', '/');
 
         Connection conn = null;
@@ -56,11 +71,12 @@ public class DatabaseManager {
             pstmt.setString(2, name);
             pstmt.setInt(3, 0);
             pstmt.executeUpdate();
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            updateName(uuid, name, getBalanceFromUUID(uuid));
         }
     }
 
-    public int getBalance(String uuid){
+    public int getBalanceFromUUID(String uuid){
         String sql = "SELECT uuid, money FROM diamonds";
 
         try (Connection conn = this.connect();
@@ -70,6 +86,23 @@ public class DatabaseManager {
             // loop through the result set
             while (rs.next()) {
                 if (rs.getString("uuid").equals(uuid)) {
+                    return rs.getInt("money");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return -1;
+    }
+
+    public int getBalanceFromName(String name){
+        String sql = "SELECT name, money FROM diamonds";
+
+        try (Connection conn = this.connect(); Statement stmt  = conn.createStatement(); ResultSet rs    = stmt.executeQuery(sql)){
+
+            // loop through the result set
+            while (rs.next()) {
+                if (rs.getString("name").equals(name)) {
                     return rs.getInt("money");
                 }
             }
@@ -122,21 +155,38 @@ public class DatabaseManager {
         return rankings.concat("Your rank is: " + playerRank);
     }
 
-    public void setName(String uuid, String name, int money) {
-        String sql = "UPDATE diamonds SET name = ? , "
-                + "money = ? "
+    public void updateName(String uuid, String name, int money) {
+        String sql = "UPDATE diamonds SET name = ? "
                 + "WHERE uuid = ?";
 
         try (Connection conn = this.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
-            pstmt.setString(3, uuid);
-            pstmt.setInt(2, money);
+            pstmt.setString(2, uuid);
             pstmt.setString(1, name);
             // update
             pstmt.executeUpdate();
         } catch (SQLException ignored) {
+        }
+    }
+
+    public void setName(String uuid, String name) {
+        String sql = "UPDATE diamonds SET name = ? "
+                + "WHERE uuid != ? "
+                + "AND name = ?";
+
+        try (Connection conn = this.connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            // set the corresponding param
+            pstmt.setString(3, name);
+            pstmt.setString(2, uuid);
+            pstmt.setString(1, "a");
+            // update
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
