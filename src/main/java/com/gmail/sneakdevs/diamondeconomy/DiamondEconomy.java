@@ -11,7 +11,7 @@ public class DiamondEconomy implements ModInitializer {
     public static final String MODID = "diamondeconomy";
 
     private static void serverStarting(MinecraftServer server){
-        DatabaseManager.createNewDatabase(server.getSavePath(WorldSavePath.ROOT).resolve("diamondeconomy.sqlite").toFile());
+        DatabaseManager.createNewDatabase(server.getSavePath(WorldSavePath.ROOT).resolve(MODID + ".sqlite").toFile());
     }
 
     @Override

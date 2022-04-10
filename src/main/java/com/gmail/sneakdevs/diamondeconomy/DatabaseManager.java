@@ -46,7 +46,6 @@ public class DatabaseManager {
     }
 
     public static void createNewTable() {
-
         // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS diamonds (\n"
                 + "	uuid text PRIMARY KEY,\n"
@@ -72,7 +71,7 @@ public class DatabaseManager {
             pstmt.setInt(3, 0);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            updateName(uuid, name, getBalanceFromUUID(uuid));
+            updateName(uuid, name);
         }
     }
 
@@ -112,22 +111,18 @@ public class DatabaseManager {
         return -1;
     }
 
-    public void setBalance(String uuid, String name, int money) {
-        String sql = "UPDATE diamonds SET name = ? , "
-                + "money = ? "
-                + "WHERE uuid = ?";
+    public void setBalance(String uuid, int money) {
+        String sql = "UPDATE diamonds SET money = ? WHERE uuid = ?";
 
         try (Connection conn = this.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
-            pstmt.setString(3, uuid);
-            pstmt.setInt(2, money);
-            pstmt.setString(1, name);
+            pstmt.setInt(1, money);
+            pstmt.setString(2, uuid);
             // update
             pstmt.executeUpdate();
-        } catch (SQLException ignored) {
-        }
+        } catch (SQLException ignored) {}
     }
 
     public String top(String uuid, int topAmount){
@@ -155,7 +150,7 @@ public class DatabaseManager {
         return rankings.concat("Your rank is: " + playerRank);
     }
 
-    public void updateName(String uuid, String name, int money) {
+    public void updateName(String uuid, String name) {
         String sql = "UPDATE diamonds SET name = ? "
                 + "WHERE uuid = ?";
 
@@ -163,8 +158,8 @@ public class DatabaseManager {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
-            pstmt.setString(2, uuid);
             pstmt.setString(1, name);
+            pstmt.setString(2, uuid);
             // update
             pstmt.executeUpdate();
         } catch (SQLException ignored) {
@@ -173,16 +168,16 @@ public class DatabaseManager {
 
     public void setName(String uuid, String name) {
         String sql = "UPDATE diamonds SET name = ? "
-                + "WHERE uuid != ? "
+                + "WHERE uuid != ?"
                 + "AND name = ?";
 
         try (Connection conn = this.connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             // set the corresponding param
-            pstmt.setString(3, name);
-            pstmt.setString(2, uuid);
             pstmt.setString(1, "a");
+            pstmt.setString(2, uuid);
+            pstmt.setString(3, name);
             // update
             pstmt.executeUpdate();
         } catch (SQLException e) {
