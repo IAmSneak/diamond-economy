@@ -1,10 +1,12 @@
 package com.gmail.sneakdevs.diamondeconomy;
 
+import com.gmail.sneakdevs.diamondeconomy.config.DEConfig;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -211,10 +213,14 @@ public class DECommands {
         players.forEach(player -> {
             int bal = dm.getBalanceFromUUID(player.getUuidAsString());
             if (amount > bal) {
-                dm.createTransaction("take", finalExecuterUUID, player.getUuidAsString(), bal, bal);
+                if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().transactionHistory) {
+                    dm.createTransaction("take", finalExecuterUUID, player.getUuidAsString(), bal, bal);
+                }
                 dm.setBalance(player.getUuidAsString(), 0);
             } else {
-                dm.createTransaction("take", finalExecuterUUID, player.getUuidAsString(), amount, bal);
+                if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().transactionHistory) {
+                    dm.createTransaction("take", finalExecuterUUID, player.getUuidAsString(), amount, bal);
+                }
                 dm.setBalance(player.getUuidAsString(), dm.getBalanceFromUUID(player.getUuidAsString()) - amount);
             }
         });
@@ -237,7 +243,9 @@ public class DECommands {
             int bal = dm.getBalanceFromUUID(player.getUuidAsString());
             int newValue = bal + amount;
             if (newValue < Integer.MAX_VALUE && newValue > 0) {
-                dm.createTransaction("give", finalExecuterUUID, player.getUuidAsString(), amount, bal);
+                if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().transactionHistory) {
+                    dm.createTransaction("give", finalExecuterUUID, player.getUuidAsString(), amount, bal);
+                }
                 dm.setBalance(player.getUuidAsString(), newValue);
                 ctx.getSource().sendFeedback(new LiteralText("Gave " + players.size() + " players " + amount + " diamonds"), true);
             } else {
@@ -258,7 +266,9 @@ public class DECommands {
 
         String finalExecuterUUID = executerUUID;
         players.forEach(player -> {
-            dm.createTransaction("set", finalExecuterUUID, player.getUuidAsString(), amount, dm.getBalanceFromUUID(player.getUuidAsString()));
+            if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().transactionHistory) {
+                dm.createTransaction("set", finalExecuterUUID, player.getUuidAsString(), amount, dm.getBalanceFromUUID(player.getUuidAsString()));
+            }
             dm.setBalance(player.getUuidAsString(), amount);
         });
 
@@ -295,7 +305,9 @@ public class DECommands {
         if (!player.getUuidAsString().equals(player1.getUuidAsString())) {
             if (bal >= amount) {
                 if (newValue < Integer.MAX_VALUE && newValue > 0) {
-                    dm.createTransaction("send", player1.getUuidAsString(), player.getUuidAsString(), amount, -1);
+                    if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().transactionHistory) {
+                        dm.createTransaction("send", player1.getUuidAsString(), player.getUuidAsString(), amount, -1);
+                    }
                     dm.setBalance(player.getUuidAsString(), newValue);
                     dm.setBalance(player1.getUuidAsString(), bal - amount);
 

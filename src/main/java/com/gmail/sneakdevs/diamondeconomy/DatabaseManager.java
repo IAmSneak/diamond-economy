@@ -1,5 +1,7 @@
 package com.gmail.sneakdevs.diamondeconomy;
 
+import com.gmail.sneakdevs.diamondeconomy.config.DEConfig;
+import me.shedaniel.autoconfig.AutoConfig;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -40,7 +42,9 @@ public class DatabaseManager {
         try (Connection conn = DriverManager.getConnection(url); Statement stmt = conn.createStatement()) {
             // create a new table
             stmt.execute(sql);
-            stmt.execute(sql2);
+            if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().transactionHistory) {
+                stmt.execute(sql2);
+            }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
