@@ -1,6 +1,5 @@
 package com.gmail.sneakdevs.diamondeconomy;
 
-import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -16,9 +15,7 @@ public class DiamondEconomy implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
-            DECommands.register(dispatcher);
-        });
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> DECommands.register(dispatcher));
         ServerLifecycleEvents.SERVER_STARTING.register(DiamondEconomy::serverStarting);
     }
 }

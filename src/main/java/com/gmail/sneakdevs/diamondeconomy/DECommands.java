@@ -87,44 +87,48 @@ public class DECommands {
                                         )
                         )
                         .then(
-                                CommandManager.literal("take")
+                                CommandManager.literal("admin")
                                         .requires((permission) -> permission.hasPermissionLevel(4))
                                         .then(
-                                                CommandManager.argument("players", EntityArgumentType.players())
+                                                CommandManager.literal("take")
+                                                        .requires((permission) -> permission.hasPermissionLevel(4))
                                                         .then(
-                                                                CommandManager.argument("amount", IntegerArgumentType.integer(1))
-                                                                        .executes(e -> {
-                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                                            return takeCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
-                                                                        })
+                                                                CommandManager.argument("players", EntityArgumentType.players())
+                                                                        .then(
+                                                                                CommandManager.argument("amount", IntegerArgumentType.integer(1))
+                                                                                        .executes(e -> {
+                                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
+                                                                                            return takeCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
+                                                                                        })
+                                                                        )
                                                         )
                                         )
-                        )
-                        .then(
-                                CommandManager.literal("give")
-                                        .requires((permission) -> permission.hasPermissionLevel(4))
                                         .then(
-                                                CommandManager.argument("players", EntityArgumentType.players())
+                                                CommandManager.literal("give")
+                                                        .requires((permission) -> permission.hasPermissionLevel(4))
                                                         .then(
-                                                                CommandManager.argument("amount", IntegerArgumentType.integer(1))
-                                                                        .executes(e -> {
-                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                                            return giveCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
-                                                                        })
+                                                                CommandManager.argument("players", EntityArgumentType.players())
+                                                                        .then(
+                                                                                CommandManager.argument("amount", IntegerArgumentType.integer(1))
+                                                                                        .executes(e -> {
+                                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
+                                                                                            return giveCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
+                                                                                        })
+                                                                        )
                                                         )
                                         )
-                        )
-                        .then(
-                                CommandManager.literal("set")
-                                        .requires((permission) -> permission.hasPermissionLevel(4))
                                         .then(
-                                                CommandManager.argument("players", EntityArgumentType.players())
+                                                CommandManager.literal("set")
+                                                        .requires((permission) -> permission.hasPermissionLevel(4))
                                                         .then(
-                                                                CommandManager.argument("amount", IntegerArgumentType.integer(0))
-                                                                        .executes(e -> {
-                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                                            return setCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
-                                                                        })
+                                                                CommandManager.argument("players", EntityArgumentType.players())
+                                                                        .then(
+                                                                                CommandManager.argument("amount", IntegerArgumentType.integer(0))
+                                                                                        .executes(e -> {
+                                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
+                                                                                            return setCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
+                                                                                        })
+                                                                        )
                                                         )
                                         )
                         )
@@ -196,11 +200,21 @@ public class DECommands {
 
     private static int takeCommand(CommandContext<ServerCommandSource> ctx, Collection<ServerPlayerEntity> players, int amount) {
         DatabaseManager dm = new DatabaseManager();
+        String executerUUID;
+        try {
+            executerUUID = ctx.getSource().getPlayer().getUuidAsString();
+        } catch (CommandSyntaxException e) {
+            executerUUID = "console";
+        }
 
+        String finalExecuterUUID = executerUUID;
         players.forEach(player -> {
-            if (amount > dm.getBalanceFromUUID(player.getUuidAsString())) {
+            int bal = dm.getBalanceFromUUID(player.getUuidAsString());
+            if (amount > bal) {
+                dm.createTransaction("take", finalExecuterUUID, player.getUuidAsString(), bal, bal);
                 dm.setBalance(player.getUuidAsString(), 0);
             } else {
+                dm.createTransaction("take", finalExecuterUUID, player.getUuidAsString(), amount, bal);
                 dm.setBalance(player.getUuidAsString(), dm.getBalanceFromUUID(player.getUuidAsString()) - amount);
             }
         });
@@ -211,11 +225,20 @@ public class DECommands {
 
     private static int giveCommand(CommandContext<ServerCommandSource> ctx, Collection<ServerPlayerEntity> players, int amount) {
         DatabaseManager dm = new DatabaseManager();
+        String executerUUID;
+        try {
+            executerUUID = ctx.getSource().getPlayer().getUuidAsString();
+        } catch (CommandSyntaxException e) {
+            executerUUID = "console";
+        }
 
+        String finalExecuterUUID = executerUUID;
         players.forEach(player -> {
-            int newValue = dm.getBalanceFromUUID(player.getUuidAsString()) + amount;
+            int bal = dm.getBalanceFromUUID(player.getUuidAsString());
+            int newValue = bal + amount;
             if (newValue < Integer.MAX_VALUE && newValue > 0) {
-                dm.setBalance(player.getUuidAsString(), dm.getBalanceFromUUID(player.getUuidAsString()) + amount);
+                dm.createTransaction("give", finalExecuterUUID, player.getUuidAsString(), amount, bal);
+                dm.setBalance(player.getUuidAsString(), newValue);
                 ctx.getSource().sendFeedback(new LiteralText("Gave " + players.size() + " players " + amount + " diamonds"), true);
             } else {
                 ctx.getSource().sendFeedback(new LiteralText("That would go over the max value for " + player.getName().asString()), true);
@@ -226,8 +249,18 @@ public class DECommands {
 
     private static int setCommand(CommandContext<ServerCommandSource> ctx, Collection<ServerPlayerEntity> players, int amount) {
         DatabaseManager dm = new DatabaseManager();
+        String executerUUID;
+        try {
+            executerUUID = ctx.getSource().getPlayer().getUuidAsString();
+        } catch (CommandSyntaxException e) {
+            executerUUID = "console";
+        }
 
-        players.forEach(player -> dm.setBalance(player.getUuidAsString(), amount));
+        String finalExecuterUUID = executerUUID;
+        players.forEach(player -> {
+            dm.createTransaction("set", finalExecuterUUID, player.getUuidAsString(), amount, dm.getBalanceFromUUID(player.getUuidAsString()));
+            dm.setBalance(player.getUuidAsString(), amount);
+        });
 
         ctx.getSource().sendFeedback(new LiteralText("Updated balance of " + players.size() + " players"), true);
         return players.size();
@@ -262,6 +295,7 @@ public class DECommands {
         if (!player.getUuidAsString().equals(player1.getUuidAsString())) {
             if (bal >= amount) {
                 if (newValue < Integer.MAX_VALUE && newValue > 0) {
+                    dm.createTransaction("send", player1.getUuidAsString(), player.getUuidAsString(), amount, -1);
                     dm.setBalance(player.getUuidAsString(), newValue);
                     dm.setBalance(player1.getUuidAsString(), bal - amount);
 
@@ -285,6 +319,7 @@ public class DECommands {
 
         while (blockAmount > 64) {
             ItemEntity itemEntity = player.dropItem(new ItemStack(Items.DIAMOND_BLOCK, 64), true);
+            assert itemEntity != null;
             itemEntity.resetPickupDelay();
             itemEntity.setOwner(player.getUuid());
             blockAmount -= 64;
@@ -292,12 +327,14 @@ public class DECommands {
 
         if (blockAmount > 0) {
             ItemEntity itemEntity1 = player.dropItem(new ItemStack(Items.DIAMOND_BLOCK, blockAmount), true);
+            assert itemEntity1 != null;
             itemEntity1.resetPickupDelay();
             itemEntity1.setOwner(player.getUuid());
         }
 
         if (amount % 9 > 0) {
             ItemEntity itemEntity2 = player.dropItem(new ItemStack(Items.DIAMOND, amount % 9), true);
+            assert itemEntity2 != null;
             itemEntity2.resetPickupDelay();
             itemEntity2.setOwner(player.getUuid());
         }

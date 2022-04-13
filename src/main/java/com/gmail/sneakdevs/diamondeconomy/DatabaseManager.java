@@ -1,24 +1,11 @@
 package com.gmail.sneakdevs.diamondeconomy;
 
-import com.google.gson.JsonParser;
+import org.jetbrains.annotations.Nullable;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.*;
 import java.sql.*;
-import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.Scanner;
-import java.util.UUID;
 
 public class DatabaseManager {
-    private static final JsonParser PARSER = new JsonParser();
     public static String url;
 
     public static void createNewDatabase(File file) {
@@ -47,19 +34,30 @@ public class DatabaseManager {
 
     public static void createNewTable() {
         // SQL statement for creating a new table
-        String sql = "CREATE TABLE IF NOT EXISTS diamonds (\n"
-                + "	uuid text PRIMARY KEY,\n"
-                + "	name text NOT NULL,\n"
-                + "	money integer DEFAULT 0\n"
-                + ");";
+        String sql = "CREATE TABLE IF NOT EXISTS diamonds (uuid text PRIMARY KEY, name text NOT NULL, money integer DEFAULT 0);";
+        String sql2 = "CREATE TABLE IF NOT EXISTS transactions (transactionid integer PRIMARY KEY AUTOINCREMENT, time integer, type integer, executer text, victim text, amount integer, oldval integer);";
 
-        try (Connection conn = DriverManager.getConnection(url);
-             Statement stmt = conn.createStatement()) {
+        try (Connection conn = DriverManager.getConnection(url); Statement stmt = conn.createStatement()) {
             // create a new table
             stmt.execute(sql);
+            stmt.execute(sql2);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    public void createTransaction(String type, String executerUUID, String victimUUID, int amount, int oldVal) {
+        String sql = "INSERT INTO transactions(time,type,executer,victim,amount,oldval) VALUES(?,?,?,?,?,?)";
+
+        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)){
+            pstmt.setLong(1, System.currentTimeMillis());
+            pstmt.setString(2, type);
+            pstmt.setString(3, executerUUID);
+            pstmt.setString(4, victimUUID);
+            pstmt.setInt(5, amount);
+            pstmt.setInt(6, oldVal);
+            pstmt.executeUpdate();
+        } catch (SQLException ignored) {}
     }
 
     public void addPlayer(String uuid, String name) {
