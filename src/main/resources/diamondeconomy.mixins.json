@@ -4,7 +4,9 @@
   "package": "com.gmail.sneakdevs.diamondeconomy.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "PlayerManagerMixin"
+    "LockableContainerBlockEntityMixin",
+    "PlayerManagerMixin",
+    "ServerPlayerInteractionManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
