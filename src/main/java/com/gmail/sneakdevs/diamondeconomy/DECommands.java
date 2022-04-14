@@ -92,6 +92,17 @@ public class DECommands {
                                 CommandManager.literal("admin")
                                         .requires((permission) -> permission.hasPermissionLevel(4))
                                         .then(
+                                                CommandManager.literal("history")
+                                                        .then(
+                                                                CommandManager.argument("amount", IntegerArgumentType.integer(1))
+                                                                        .executes(e -> {
+                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
+                                                                            return historyCommand(e, amount);
+                                                                        })
+                                                        )
+                                                        .executes(e -> historyCommand(e, 1))
+                                        )
+                                        .then(
                                                 CommandManager.literal("take")
                                                         .requires((permission) -> permission.hasPermissionLevel(4))
                                                         .then(
@@ -292,6 +303,16 @@ public class DECommands {
         DatabaseManager dm = new DatabaseManager();
         ServerPlayerEntity player1 = ctx.getSource().getPlayer();
         ctx.getSource().sendFeedback(new LiteralText(dm.top(player1.getUuidAsString(), topAmount)), false);
+        return 1;
+    }
+
+    private static int historyCommand(CommandContext<ServerCommandSource> ctx, int page) {
+        if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().transactionHistory) {
+            DatabaseManager dm = new DatabaseManager();
+            ctx.getSource().sendFeedback(new LiteralText(dm.history(page)), false);
+        } else {
+            ctx.getSource().sendFeedback(new LiteralText("Transaction history is not enabled"), false);
+        }
         return 1;
     }
 

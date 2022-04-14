@@ -2,16 +2,16 @@ package com.gmail.sneakdevs.diamondeconomy;
 
 import com.gmail.sneakdevs.diamondeconomy.config.DEConfig;
 import me.shedaniel.autoconfig.AutoConfig;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 
 public class DatabaseManager {
     public static String url;
 
+    @SuppressWarnings("all")
     public static void createNewDatabase(File file) {
-
         url = "jdbc:sqlite:" + file.getPath().replace('\\', '/');
 
         Connection conn = null;
@@ -46,7 +46,7 @@ public class DatabaseManager {
                 stmt.execute(sql2);
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -61,7 +61,9 @@ public class DatabaseManager {
             pstmt.setInt(5, amount);
             pstmt.setInt(6, oldVal);
             pstmt.executeUpdate();
-        } catch (SQLException ignored) {}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void addPlayer(String uuid, String name) {
@@ -91,9 +93,28 @@ public class DatabaseManager {
                 }
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return -1;
+    }
+
+    public String getNameFromUUID(String uuid){
+        String sql = "SELECT uuid, name FROM diamonds";
+
+        try (Connection conn = this.connect();
+             Statement stmt  = conn.createStatement();
+             ResultSet rs    = stmt.executeQuery(sql)){
+
+            // loop through the result set
+            while (rs.next()) {
+                if (rs.getString("uuid").equals(uuid)) {
+                    return rs.getString("name");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public int getBalanceFromName(String name){
@@ -108,7 +129,7 @@ public class DatabaseManager {
                 }
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return -1;
     }
@@ -124,7 +145,9 @@ public class DatabaseManager {
             pstmt.setString(2, uuid);
             // update
             pstmt.executeUpdate();
-        } catch (SQLException ignored) {}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public String top(String uuid, int topAmount){
@@ -147,7 +170,8 @@ public class DatabaseManager {
                     rankings = rankings.concat(rs.getString("name") + "  " + rs.getInt("money") + "\n");
                 }
             }
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return rankings.concat("Your rank is: " + playerRank);
     }
@@ -159,12 +183,11 @@ public class DatabaseManager {
         try (Connection conn = this.connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            // set the corresponding param
             pstmt.setString(1, name);
             pstmt.setString(2, uuid);
-            // update
             pstmt.executeUpdate();
-        } catch (SQLException ignored) {
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -176,14 +199,50 @@ public class DatabaseManager {
         try (Connection conn = this.connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            // set the corresponding param
             pstmt.setString(1, "a");
             pstmt.setString(2, uuid);
             pstmt.setString(3, name);
-            // update
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public String history(int page){
+        String sql = "SELECT time,type,executer,victim,amount,oldval FROM transactions ORDER BY transactionid DESC";
+        StringBuilder history = new StringBuilder();
+        int i = 0;
+        int repeats = 0;
+
+        try (Connection conn = this.connect();
+             Statement stmt  = conn.createStatement();
+             ResultSet rs    = stmt.executeQuery(sql)){
+
+            while (rs.next() && i < 8) {
+                if (repeats / 8 + 1 == page) {
+                    history.append("\n").append(getMessage(rs.getString("type"), getNameFromUUID(rs.getString("executer")), getNameFromUUID(rs.getString("victim")), rs.getInt("amount"), rs.getLong("time"), rs.getInt("oldval")));
+                    i++;
+                }
+                repeats++;
+            }
+            if (i < 8) {
+                history.append("\n").append("End of Transaction History");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return history.toString();
+    }
+
+    public String getMessage(String type, String executer, String victim, int amount, long time, int oldVal){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date resultTime = new Date(time);
+        return switch (type) {
+            case "take" -> executer + " took " + amount + " from " + victim + " on " + sdf.format(resultTime);
+            case "send" -> executer + " sent " + amount + " to " + victim + " on " + sdf.format(resultTime);
+            case "give" -> executer + " gave " + amount + " to " + victim + " on " + sdf.format(resultTime);
+            case "set" -> executer + " set " + victim + "'s balance to " + amount + " from " + oldVal + " on " + sdf.format(resultTime);
+            default -> "Unknown Transaction";
+        };
     }
 }
