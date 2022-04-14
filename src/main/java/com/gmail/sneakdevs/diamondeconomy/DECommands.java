@@ -9,6 +9,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.command.CommandManager;
@@ -22,7 +23,7 @@ import java.util.Collection;
 public class DECommands {
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
         dispatcher.register(
-                CommandManager.literal("diamonds")
+                CommandManager.literal(AutoConfig.getConfigHolder(DEConfig.class).getConfig().commandName)
                         .then(
                                 CommandManager.literal("top")
                                         .then(
@@ -154,14 +155,14 @@ public class DECommands {
         String uuid = player.getUuidAsString();
 
         if (dm.getBalanceFromUUID(uuid) >= amount) {
-            dropDiamonds(amount, player);
+            dropCurrencyItem(amount, player);
             dm.setBalance(uuid, dm.getBalanceFromUUID(uuid) - amount);
-            ctx.getSource().sendFeedback(new LiteralText("Withdrew " + amount + " diamonds"), false);
+            ctx.getSource().sendFeedback(new LiteralText("Withdrew " + amount + " " + DEConfig.getCurrencyName()), false);
 
             return 1;
         }
 
-        ctx.getSource().sendFeedback(new LiteralText("You have less than " + amount + " diamonds"), false);
+        ctx.getSource().sendFeedback(new LiteralText("You have less than " + amount + " " + DEConfig.getCurrencyName()), false);
 
         return 1;
     }
@@ -169,46 +170,42 @@ public class DECommands {
     private static int depositCommand(CommandContext<ServerCommandSource> ctx, int amount) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         DatabaseManager dm = new DatabaseManager();
-        int diamondCount = 0;
+        int currencyCount = 0;
         int bal = dm.getBalanceFromUUID(player.getUuidAsString());
-
         int newValue = bal + amount;
         if (newValue < Integer.MAX_VALUE && newValue >= 0) {
-            for (int i = 0; i < 36; i++) {
-                if (player.getInventory().getStack(i).getItem().equals(Items.DIAMOND)) {
-                    diamondCount += player.getInventory().getStack(i).getCount();
-                    player.getInventory().setStack(i, new ItemStack(Items.AIR));
-                } else if (player.getInventory().getStack(i).getItem().equals(Items.DIAMOND_BLOCK)){
-                    diamondCount += player.getInventory().getStack(i).getCount() * 9;
+            for (int i = 0; i < player.getInventory().size(); i++) {
+                if (player.getInventory().getStack(i).getItem().equals(DEConfig.getCurrency())) {
+                    currencyCount += player.getInventory().getStack(i).getCount();
                     player.getInventory().setStack(i, new ItemStack(Items.AIR));
                 }
             }
 
-            if (amount == 0) {
-                newValue = bal + diamondCount;
+            if (amount == 0 || amount == currencyCount) {
+                newValue = bal + currencyCount;
                 if (newValue < Integer.MAX_VALUE && newValue > 0) {
-                    dm.setBalance(player.getUuidAsString(), diamondCount + bal);
-                    ctx.getSource().sendFeedback(new LiteralText("Added " + diamondCount + " diamonds to your account"), false);
+                    dm.setBalance(player.getUuidAsString(), currencyCount + bal);
+                    ctx.getSource().sendFeedback(new LiteralText("Added " + currencyCount + " " + DEConfig.getCurrencyName() + " to your account"), false);
                     return 1;
                 }
-                dropDiamonds(diamondCount, player);
+                dropCurrencyItem(currencyCount, player);
                 ctx.getSource().sendFeedback(new LiteralText("You do not have enough room in your account"), false);
-                return 0;
+                return 1;
             }
 
-            if (amount > diamondCount) {
-                dropDiamonds(diamondCount, player);
-                ctx.getSource().sendFeedback(new LiteralText("You do not have enough diamonds in your inventory"), false);
-                return 0;
+            if (amount > currencyCount) {
+                dropCurrencyItem(currencyCount, player);
+                ctx.getSource().sendFeedback(new LiteralText("You do not have enough " + DEConfig.getCurrencyName() + " in your inventory"), false);
+                return 1;
             }
-            dropDiamonds(diamondCount - amount, player);
+            dropCurrencyItem(currencyCount - amount, player);
             dm.setBalance(player.getUuidAsString(), amount + bal);
-            ctx.getSource().sendFeedback(new LiteralText("Added " + amount + " diamonds to your account"), false);
+            ctx.getSource().sendFeedback(new LiteralText("Added " + amount + " " + DEConfig.getCurrencyName() + " to your account"), false);
             return 1;
         }
 
         ctx.getSource().sendFeedback(new LiteralText("You do not have enough room in your account"), false);
-        return 0;
+        return 1;
     }
 
     private static int takeCommand(CommandContext<ServerCommandSource> ctx, Collection<ServerPlayerEntity> players, int amount) {
@@ -236,7 +233,7 @@ public class DECommands {
             }
         });
 
-        ctx.getSource().sendFeedback(new LiteralText("Took " + Math.abs(amount) + " diamonds from " + players.size() + " players"), true);
+        ctx.getSource().sendFeedback(new LiteralText("Took " + Math.abs(amount) + " " + DEConfig.getCurrencyName() + " from " + players.size() + " players"), true);
         return players.size();
     }
 
@@ -258,7 +255,7 @@ public class DECommands {
                     dm.createTransaction("give", finalExecuterUUID, player.getUuidAsString(), amount, bal);
                 }
                 dm.setBalance(player.getUuidAsString(), newValue);
-                ctx.getSource().sendFeedback(new LiteralText("Gave " + players.size() + " players " + amount + " diamonds"), true);
+                ctx.getSource().sendFeedback(new LiteralText("Gave " + players.size() + " players " + amount + " " + DEConfig.getCurrencyName()), true);
             } else {
                 ctx.getSource().sendFeedback(new LiteralText("That would go over the max value for " + player.getName().asString()), true);
             }
@@ -292,8 +289,8 @@ public class DECommands {
         if (player == null) player = ctx.getSource().getPlayer().getName().asString();
         int bal = dm.getBalanceFromName(player);
         if (bal > -1) {
-            ctx.getSource().sendFeedback(new LiteralText(player + " has " + bal + " diamonds"), false);
-            return 0;
+            ctx.getSource().sendFeedback(new LiteralText(player + " has " + bal + " " + DEConfig.getCurrencyName()), false);
+            return 1;
         }
         ctx.getSource().sendFeedback(new LiteralText("No account was found for player with the name \"" + player + "\""), false);
         return 1;
@@ -332,44 +329,33 @@ public class DECommands {
                     dm.setBalance(player.getUuidAsString(), newValue);
                     dm.setBalance(player1.getUuidAsString(), bal - amount);
 
-                    player.sendMessage(new LiteralText("You received " + amount + " diamonds from " + player1.getName().asString()), false);
-                    ctx.getSource().sendFeedback(new LiteralText("Sent " + amount + " diamonds to " + player.getName().asString()), false);
+                    player.sendMessage(new LiteralText("You received " + amount + " " + DEConfig.getCurrencyName() + " from " + player1.getName().asString()), false);
+                    ctx.getSource().sendFeedback(new LiteralText("Sent " + amount + " " + DEConfig.getCurrencyName() + " to " + player.getName().asString()), false);
                 } else {
                     ctx.getSource().sendFeedback(new LiteralText("Failed because that would go over the max value"), false);
                 }
             } else {
-                ctx.getSource().sendFeedback(new LiteralText("You don't have enough diamonds"), false);
+                ctx.getSource().sendFeedback(new LiteralText("You don't have enough " + DEConfig.getCurrencyName()), false);
             }
         } else {
-            ctx.getSource().sendFeedback(new LiteralText("You cant send diamonds to yourself"), false);
+            ctx.getSource().sendFeedback(new LiteralText("You cant send " + DEConfig.getCurrencyName() + " to yourself"), false);
         }
 
         return 1;
     }
 
-    private static void dropDiamonds(int amount, ServerPlayerEntity player) {
-        int blockAmount = amount / 9;
-
-        while (blockAmount > 64) {
-            ItemEntity itemEntity = player.dropItem(new ItemStack(Items.DIAMOND_BLOCK, 64), true);
+    private static void dropCurrencyItem(int amount, ServerPlayerEntity player) {
+        while (amount > DEConfig.getCurrency().getMaxCount()) {
+            ItemEntity itemEntity = player.dropItem(new ItemStack(DEConfig.getCurrency(), DEConfig.getCurrency().getMaxCount()), true);
             assert itemEntity != null;
             itemEntity.resetPickupDelay();
             itemEntity.setOwner(player.getUuid());
-            blockAmount -= 64;
+            amount -= DEConfig.getCurrency().getMaxCount();
         }
 
-        if (blockAmount > 0) {
-            ItemEntity itemEntity1 = player.dropItem(new ItemStack(Items.DIAMOND_BLOCK, blockAmount), true);
-            assert itemEntity1 != null;
-            itemEntity1.resetPickupDelay();
-            itemEntity1.setOwner(player.getUuid());
-        }
-
-        if (amount % 9 > 0) {
-            ItemEntity itemEntity2 = player.dropItem(new ItemStack(Items.DIAMOND, amount % 9), true);
-            assert itemEntity2 != null;
-            itemEntity2.resetPickupDelay();
-            itemEntity2.setOwner(player.getUuid());
-        }
+        ItemEntity itemEntity2 = player.dropItem(new ItemStack(DEConfig.getCurrency(), amount), true);
+        assert itemEntity2 != null;
+        itemEntity2.resetPickupDelay();
+        itemEntity2.setOwner(player.getUuid());
     }
 }
