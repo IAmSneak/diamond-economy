@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerManager.class)
 public class PlayerManagerMixin {
     @Inject(method = "onPlayerConnect", at = @At("TAIL"))
-    private void onPlayerConnectMixin(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+    private void diamondeconomy_onPlayerConnectMixin(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
         DatabaseManager dm = new DatabaseManager();
         String uuid = player.getUuidAsString();
         String name = player.getName().asString();

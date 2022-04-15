@@ -1,17 +1,17 @@
 package com.gmail.sneakdevs.diamondeconomy.mixin;
 
-import com.gmail.sneakdevs.diamondeconomy.interfaces.LockableContainerBlockEntityInterface;
 import com.gmail.sneakdevs.diamondeconomy.config.DEConfig;
+import com.gmail.sneakdevs.diamondeconomy.interfaces.SignBlockEntityInterface;
 import me.shedaniel.autoconfig.AutoConfig;
-import net.minecraft.block.entity.LockableContainerBlockEntity;
+import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(LockableContainerBlockEntity.class)
-public class LockableContainerBlockEntityMixin implements LockableContainerBlockEntityInterface {
+@Mixin(SignBlockEntity.class)
+public class SignBlockEntityMixin implements SignBlockEntityInterface {
     private String diamondeconomy_owner;
 
     public void diamondeconomy_setOwner(String newOwner) {
