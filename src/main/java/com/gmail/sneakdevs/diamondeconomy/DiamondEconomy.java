@@ -27,10 +27,6 @@ public class DiamondEconomy implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTING.register(DiamondEconomy::serverStarting);
     }
 
-    public static String signTextToReadable(String text) {
-        return text.replace("{","").replace("\"", "").replace("text", "").replace("}", "").replace(":", "").replace("$", "").replace(" ", "").toLowerCase();
-    }
-
     public static void dropItem(Item item, int amount, ServerPlayerEntity player) {
         while (amount > item.getMaxCount()) {
             ItemEntity itemEntity = player.dropItem(new ItemStack(item, item.getMaxCount()), true);

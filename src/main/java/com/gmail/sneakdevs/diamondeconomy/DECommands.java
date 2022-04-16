@@ -36,10 +36,6 @@ public class DECommands {
                                         .executes(e -> topCommand(e, 5))
                         )
                         .then(
-                                CommandManager.literal("chestshop")
-                                        .executes(DECommands::chestshopCommand)
-                        )
-                        .then(
                                 CommandManager.literal("balance")
                                         .then(
                                                 CommandManager.argument("playerName", StringArgumentType.string())
