@@ -12,7 +12,6 @@ public class DEConfig implements ConfigData {
     public boolean transactionHistory = true;
     public String commandName = "diamonds";
     public String currency = "minecraft:diamond";
-    public boolean chestShops = true;
 
     public static String getCurrencyName() {
         return Registry.ITEM.get(Identifier.tryParse(AutoConfig.getConfigHolder(DEConfig.class).getConfig().currency)).getName().getString();
