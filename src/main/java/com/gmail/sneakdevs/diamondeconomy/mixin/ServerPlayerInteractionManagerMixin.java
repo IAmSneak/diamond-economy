@@ -27,8 +27,8 @@ public class ServerPlayerInteractionManagerMixin {
     private void diamondeconomy_tryBreakBlock(BlockPos pos, CallbackInfoReturnable<Boolean> info) {
         if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().chestShops) {
             if (!world.getBlockState(pos).hasBlockEntity()) return;
-            if (!NbtHelper.fromBlockPos(pos).getBoolean("IsShop")) return;
-            if (NbtHelper.fromBlockPos(pos).getString("ShopOwner").equals(player.getUuidAsString())) return;
+            if (!NbtHelper.fromBlockPos(pos).getBoolean("diamond_economy_IsShop")) return;
+            if (NbtHelper.fromBlockPos(pos).getString("diamond_economy_ShopOwner").equals(player.getUuidAsString())) return;
             info.setReturnValue(false);
         }
     }

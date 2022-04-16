@@ -6,7 +6,11 @@ import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.minecraft.entity.ItemEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.WorldSavePath;
 
 public class DiamondEconomy implements ModInitializer {
@@ -21,5 +25,24 @@ public class DiamondEconomy implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> DECommands.register(dispatcher));
         AutoConfig.register(DEConfig.class, Toml4jConfigSerializer::new);
         ServerLifecycleEvents.SERVER_STARTING.register(DiamondEconomy::serverStarting);
+    }
+
+    public static String signTextToReadable(String text) {
+        return text.replace("{","").replace("\"", "").replace("text", "").replace("}", "").replace(":", "").replace("$", "").replace(" ", "").toLowerCase();
+    }
+
+    public static void dropItem(Item item, int amount, ServerPlayerEntity player) {
+        while (amount > item.getMaxCount()) {
+            ItemEntity itemEntity = player.dropItem(new ItemStack(item, item.getMaxCount()), true);
+            assert itemEntity != null;
+            itemEntity.resetPickupDelay();
+            itemEntity.setOwner(player.getUuid());
+            amount -= item.getMaxCount();
+        }
+
+        ItemEntity itemEntity2 = player.dropItem(new ItemStack(item, amount), true);
+        assert itemEntity2 != null;
+        itemEntity2.resetPickupDelay();
+        itemEntity2.setOwner(player.getUuid());
     }
 }

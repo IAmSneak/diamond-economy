@@ -13,18 +13,35 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(SignBlockEntity.class)
 public class SignBlockEntityMixin implements SignBlockEntityInterface {
     private String diamondeconomy_owner;
+    private boolean diamondeconomy_isShop;
+    private boolean diamondeconomy_isAdminShop;
 
     public void diamondeconomy_setOwner(String newOwner) {
-        if (newOwner == null) newOwner = "@";
         this.diamondeconomy_owner = newOwner;
+    }
+    public void diamondeconomy_setShop(boolean newShop) {
+        this.diamondeconomy_isShop = newShop;
+    }
+    public void diamondeconomy_setAdminShop(boolean newAdminShop) {
+        this.diamondeconomy_isAdminShop = newAdminShop;
     }
 
     @Inject(method = "writeNbt", at = @At("TAIL"))
     private void diamondeconomy_writeNbtMixin(NbtCompound nbt, CallbackInfo ci) {
         if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().chestShops) {
-            if (diamondeconomy_owner == null) diamondeconomy_owner = "@";
-            if (!nbt.contains("ShopOwner")) nbt.putString("ShopOwner", diamondeconomy_owner);
-            if (!nbt.contains("IsShop")) nbt.putBoolean("IsShop", false);
+            if (diamondeconomy_owner == null) diamondeconomy_owner = "";
+            nbt.putString("diamond_economy_ShopOwner", diamondeconomy_owner);
+            if (!nbt.contains("diamond_economy_IsShop")) nbt.putBoolean("diamond_economy_IsShop", diamondeconomy_isShop);
+            if (!nbt.contains("diamond_economy_IsAdminShop")) nbt.putBoolean("diamond_economy_IsAdminShop", diamondeconomy_isAdminShop);
+        }
+    }
+
+    @Inject(method = "readNbt", at = @At("TAIL"))
+    private void diamondeconomy_readNbtMixin(NbtCompound nbt, CallbackInfo ci) {
+        if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().chestShops) {
+            this.diamondeconomy_owner = nbt.getString("diamond_economy_ShopOwner");
+            this.diamondeconomy_isShop = nbt.getBoolean("diamond_economy_IsShop");
+            this.diamondeconomy_isAdminShop = nbt.getBoolean("diamond_economy_IsAdminShop");
         }
     }
 }

@@ -155,7 +155,7 @@ public class DECommands {
         String uuid = player.getUuidAsString();
 
         if (dm.getBalanceFromUUID(uuid) >= amount) {
-            dropCurrencyItem(amount, player);
+            DiamondEconomy.dropItem(DEConfig.getCurrency(), amount, player);
             dm.setBalance(uuid, dm.getBalanceFromUUID(uuid) - amount);
             ctx.getSource().sendFeedback(new LiteralText("Withdrew " + amount + " " + DEConfig.getCurrencyName()), false);
 
@@ -188,17 +188,17 @@ public class DECommands {
                     ctx.getSource().sendFeedback(new LiteralText("Added " + currencyCount + " " + DEConfig.getCurrencyName() + " to your account"), false);
                     return 1;
                 }
-                dropCurrencyItem(currencyCount, player);
+                DiamondEconomy.dropItem(DEConfig.getCurrency(), currencyCount, player);
                 ctx.getSource().sendFeedback(new LiteralText("You do not have enough room in your account"), false);
                 return 1;
             }
 
             if (amount > currencyCount) {
-                dropCurrencyItem(currencyCount, player);
+                DiamondEconomy.dropItem(DEConfig.getCurrency(), currencyCount, player);
                 ctx.getSource().sendFeedback(new LiteralText("You do not have enough " + DEConfig.getCurrencyName() + " in your inventory"), false);
                 return 1;
             }
-            dropCurrencyItem(currencyCount - amount, player);
+            DiamondEconomy.dropItem(DEConfig.getCurrency(), currencyCount - amount, player);
             dm.setBalance(player.getUuidAsString(), amount + bal);
             ctx.getSource().sendFeedback(new LiteralText("Added " + amount + " " + DEConfig.getCurrencyName() + " to your account"), false);
             return 1;
@@ -214,7 +214,7 @@ public class DECommands {
         try {
             executerUUID = ctx.getSource().getPlayer().getUuidAsString();
         } catch (CommandSyntaxException e) {
-            executerUUID = "console";
+            executerUUID = "@";
         }
 
         String finalExecuterUUID = executerUUID;
@@ -243,7 +243,7 @@ public class DECommands {
         try {
             executerUUID = ctx.getSource().getPlayer().getUuidAsString();
         } catch (CommandSyntaxException e) {
-            executerUUID = "console";
+            executerUUID = "@";
         }
 
         String finalExecuterUUID = executerUUID;
@@ -269,7 +269,7 @@ public class DECommands {
         try {
             executerUUID = ctx.getSource().getPlayer().getUuidAsString();
         } catch (CommandSyntaxException e) {
-            executerUUID = "console";
+            executerUUID = "@";
         }
 
         String finalExecuterUUID = executerUUID;
@@ -342,20 +342,5 @@ public class DECommands {
         }
 
         return 1;
-    }
-
-    private static void dropCurrencyItem(int amount, ServerPlayerEntity player) {
-        while (amount > DEConfig.getCurrency().getMaxCount()) {
-            ItemEntity itemEntity = player.dropItem(new ItemStack(DEConfig.getCurrency(), DEConfig.getCurrency().getMaxCount()), true);
-            assert itemEntity != null;
-            itemEntity.resetPickupDelay();
-            itemEntity.setOwner(player.getUuid());
-            amount -= DEConfig.getCurrency().getMaxCount();
-        }
-
-        ItemEntity itemEntity2 = player.dropItem(new ItemStack(DEConfig.getCurrency(), amount), true);
-        assert itemEntity2 != null;
-        itemEntity2.resetPickupDelay();
-        itemEntity2.setOwner(player.getUuid());
     }
 }
