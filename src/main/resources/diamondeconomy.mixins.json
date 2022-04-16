@@ -6,6 +6,7 @@
   "mixins": [
     "AbstractSignBlockMixin",
     "BlockItemMixin",
+    "ItemEntityMixin",
     "LockableContainerBlockEntityMixin",
     "PlayerManagerMixin",
     "ServerPlayerInteractionManagerMixin",
