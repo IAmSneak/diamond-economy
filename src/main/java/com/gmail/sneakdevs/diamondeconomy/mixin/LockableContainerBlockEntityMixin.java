@@ -2,15 +2,13 @@ package com.gmail.sneakdevs.diamondeconomy.mixin;
 
 import com.gmail.sneakdevs.diamondeconomy.config.DEConfig;
 import com.gmail.sneakdevs.diamondeconomy.interfaces.LockableContainerBlockEntityInterface;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.shedaniel.autoconfig.AutoConfig;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.text.LiteralText;
-import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -55,8 +53,10 @@ public class LockableContainerBlockEntityMixin implements LockableContainerBlock
         if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().chestShops) {
             if (diamondeconomy_owner == null) diamondeconomy_owner = "";
             if (diamondeconomy_item == null) diamondeconomy_item = "";
+            if (diamondeconomy_nbt == null) diamondeconomy_nbt = "";
             if (!nbt.contains("diamondeconomy_ShopOwner")) nbt.putString("diamondeconomy_ShopOwner", diamondeconomy_owner);
             if (!nbt.contains("diamondeconomy_ShopItem")) nbt.putString("diamondeconomy_ShopItem", diamondeconomy_item);
+            if (!nbt.contains("diamondeconomy_NBT")) nbt.putString("diamondeconomy_NBT", diamondeconomy_nbt);
             if (!nbt.contains("diamondeconomy_IsShop")) nbt.putBoolean("diamondeconomy_IsShop", diamondeconomy_isShop);
         }
     }
@@ -66,6 +66,7 @@ public class LockableContainerBlockEntityMixin implements LockableContainerBlock
         if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().chestShops) {
             this.diamondeconomy_owner = nbt.getString("diamondeconomy_ShopOwner");
             this.diamondeconomy_item = nbt.getString("diamondeconomy_ShopItem");
+            this.diamondeconomy_nbt = nbt.getString("diamondeconomy_NBT");
             this.diamondeconomy_isShop = nbt.getBoolean("diamondeconomy_IsShop");
         }
     }

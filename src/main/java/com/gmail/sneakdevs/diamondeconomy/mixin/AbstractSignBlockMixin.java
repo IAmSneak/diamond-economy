@@ -6,6 +6,7 @@ import com.gmail.sneakdevs.diamondeconomy.config.DEConfig;
 import com.gmail.sneakdevs.diamondeconomy.interfaces.ItemEntityInterface;
 import com.gmail.sneakdevs.diamondeconomy.interfaces.LockableContainerBlockEntityInterface;
 import com.gmail.sneakdevs.diamondeconomy.interfaces.SignBlockEntityInterface;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.block.AbstractSignBlock;
 import net.minecraft.block.BlockState;
@@ -22,6 +23,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.ActionResult;
@@ -51,11 +53,9 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
     //remove shop from chest
     @Override
     public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
-        System.out.println("onBreak");
         if (!world.isClient() && ((SignBlockEntityInterface) Objects.requireNonNull(world.getBlockEntity(pos))).diamondeconomy_getShop()) {
-            System.out.println("in onBreak");
             BlockPos hangingPos = pos.add(state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetX(), state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetY(), state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetZ());
-            List<Entity> entities = world.getOtherEntities(player, new Box(hangingPos));
+            List<Entity> entities = world.getOtherEntities(player, new Box(hangingPos.down(), hangingPos.up()));
             while(entities.size() > 0) {
                 if (entities.get(0).getUuid().equals(((SignBlockEntityInterface) world.getBlockEntity(pos)).diamondeconomy_getItemEntity())) {
                     entities.get(0).kill();
@@ -112,7 +112,7 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                             if (!((SignBlockEntityInterface)be).diamondeconomy_getAdminShop()) {
                                 int itemCount = 0;
                                 for (int i = 0; i < shop.size(); i++) {
-                                    if (shop.getStack(i).getItem().equals(sellItem)) {
+                                    if (shop.getStack(i).getItem().equals(sellItem) && (!shop.getStack(i).hasNbt() || shop.getStack(i).getNbt().asString().equals(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()))) {
                                         itemCount += shop.getStack(i).getCount();
                                     }
                                 }
@@ -124,11 +124,13 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                                 //take items from chest
                                 itemCount = quantity;
                                 for (int i = 0; i < shop.size(); i++) {
-                                    if (shop.getStack(i).getItem().equals(sellItem)) {
+                                    if (shop.getStack(i).getItem().equals(sellItem) && (!shop.getStack(i).hasNbt() || shop.getStack(i).getNbt().asString().equals(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()))) {
                                         itemCount -= shop.getStack(i).getCount();
                                         shop.setStack(i, new ItemStack(Items.AIR));
                                         if (itemCount < 0) {
-                                            shop.setStack(i, new ItemStack(sellItem, Math.abs(itemCount)));
+                                            ItemStack stack = new ItemStack(sellItem, Math.abs(itemCount));
+                                            stack.setNbt(NbtHelper.fromNbtProviderString(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()));
+                                            shop.setStack(i, stack);
                                             break;
                                         }
                                     }
@@ -136,7 +138,22 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                             }
 
                             //give the player the items
-                            DiamondEconomy.dropItem(sellItem, quantity, (ServerPlayerEntity) player);
+                            while (quantity > sellItem.getMaxCount()) {
+                                ItemStack stack = new ItemStack(sellItem, sellItem.getMaxCount());
+                                stack.setNbt(NbtHelper.fromNbtProviderString(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()));
+                                ItemEntity itemEntity = player.dropItem(stack, true);
+                                assert itemEntity != null;
+                                itemEntity.resetPickupDelay();
+                                itemEntity.setOwner(player.getUuid());
+                                quantity -= sellItem.getMaxCount();
+                            }
+
+                            ItemStack stack2 = new ItemStack(sellItem, quantity);
+                            stack2.setNbt(NbtHelper.fromNbtProviderString(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()));
+                            ItemEntity itemEntity2 = player.dropItem(stack2, true);
+                            assert itemEntity2 != null;
+                            itemEntity2.resetPickupDelay();
+                            itemEntity2.setOwner(player.getUuid());
 
                             //make the transaction
                             if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().transactionHistory) {
@@ -149,7 +166,7 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
 
                             player.sendMessage(new LiteralText("Bought " + quantity + " " + sellItem.getName().getString() + " for " + money + " " + DEConfig.getCurrencyName()), true);
                             return;
-                        } catch (NumberFormatException ignored) {return;}
+                        } catch (NumberFormatException | CommandSyntaxException ignored) {return;}
                     }
 
                     //buy shops
@@ -177,7 +194,7 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                             //check player has item in proper quantity
                             int itemCount = 0;
                             for (int i = 0; i < player.getInventory().size(); i++) {
-                                if (player.getInventory().getStack(i).getItem().equals(buyItem)) {
+                                if (player.getInventory().getStack(i).getItem().equals(buyItem) && (!player.getInventory().getStack(i).hasNbt() || player.getInventory().getStack(i).getNbt().asString().equals(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()))) {
                                     itemCount += player.getInventory().getStack(i).getCount();
                                 }
                             }
@@ -203,11 +220,13 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                             //take items from player
                             itemCount = quantity;
                             for (int i = 0; i < player.getInventory().size(); i++) {
-                                if (player.getInventory().getStack(i).getItem().equals(buyItem)) {
+                                if (player.getInventory().getStack(i).getItem().equals(buyItem) && (!player.getInventory().getStack(i).hasNbt() || player.getInventory().getStack(i).getNbt().asString().equals(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()))) {
                                     itemCount -= player.getInventory().getStack(i).getCount();
                                     player.getInventory().setStack(i, new ItemStack(Items.AIR));
                                     if (itemCount < 0) {
-                                        player.getInventory().setStack(i, new ItemStack(buyItem, Math.abs(itemCount)));
+                                        ItemStack stack = new ItemStack(buyItem, Math.abs(itemCount));
+                                        stack.setNbt(NbtHelper.fromNbtProviderString(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()));
+                                        player.getInventory().setStack(i, stack);
                                         break;
                                     }
                                 }
@@ -217,17 +236,23 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                             if (!((SignBlockEntityInterface)be).diamondeconomy_getAdminShop()) {
                                 int itemsToAdd = quantity;
                                 for (int i = 0; i < shop.size(); i++) {
-                                    if (shop.getStack(i).getItem().equals(buyItem)) {
+                                    if (shop.getStack(i).getItem().equals(buyItem) && (!shop.getStack(i).hasNbt() || shop.getStack(i).getNbt().asString().equals(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()))) {
                                         itemsToAdd += shop.getStack(i).getCount();
                                         itemsToAdd -= buyItem.getMaxCount();
-                                        shop.setStack(i, new ItemStack(buyItem, buyItem.getMaxCount()));
+                                        ItemStack stack = new ItemStack(buyItem, buyItem.getMaxCount());
+                                        stack.setNbt(NbtHelper.fromNbtProviderString(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()));
+                                        shop.setStack(i, stack);
                                     }
                                     if (shop.getStack(i).getItem().equals(Items.AIR)) {
                                         itemsToAdd -= buyItem.getMaxCount();
-                                        shop.setStack(i, new ItemStack(buyItem, buyItem.getMaxCount()));
+                                        ItemStack stack = new ItemStack(buyItem, buyItem.getMaxCount());
+                                        stack.setNbt(NbtHelper.fromNbtProviderString(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()));
+                                        shop.setStack(i, stack);
                                     }
                                     if (itemsToAdd < 0) {
-                                        shop.setStack(i, new ItemStack(buyItem, buyItem.getMaxCount() + itemsToAdd));
+                                        ItemStack stack = new ItemStack(buyItem, buyItem.getMaxCount() + itemsToAdd);
+                                        stack.setNbt(NbtHelper.fromNbtProviderString(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getNbt()));
+                                        shop.setStack(i, stack);
                                         break;
                                     }
                                 }
@@ -244,7 +269,7 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
 
                             player.sendMessage(new LiteralText("Sold " + quantity + " " + buyItem.getName().getString() + " for " + money + " " + DEConfig.getCurrencyName()), true);
                             return;
-                        } catch (NumberFormatException ignored) {return;}
+                        } catch (NumberFormatException | CommandSyntaxException ignored) {return;}
                     }
                 }
             }
@@ -290,6 +315,11 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                             ((SignBlockEntityInterface) be).diamondeconomy_setShop(true);
                             ((LockableContainerBlockEntityInterface) shop).diamondeconomy_setShop(true);
                             ((LockableContainerBlockEntityInterface) shop).diamondeconomy_setItem(Registry.ITEM.getId(player.getOffHandStack().getItem()).toString());
+                            try {
+                                ((LockableContainerBlockEntityInterface) shop).diamondeconomy_setNbt(player.getOffHandStack().getNbt().asString());
+                            } catch (NullPointerException ignored) {
+                                ((LockableContainerBlockEntityInterface) shop).diamondeconomy_setNbt("{}");
+                            }
                             be.markDirty();
                             shop.markDirty();
 
@@ -299,7 +329,7 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                             itemEntity.setPickupDelayInfinite();
                             itemEntity.setInvulnerable(true);
                             itemEntity.setNoGravity(true);
-                            itemEntity.setPosition(new Vec3d(hangingPos.getX() + 0.5, hangingPos.getY() + 0.95, hangingPos.getZ() + 0.5));
+                            itemEntity.setPosition(new Vec3d(hangingPos.getX() + 0.5, hangingPos.getY() + 1.05, hangingPos.getZ() + 0.5));
                             ((ItemEntityInterface)itemEntity).diamondeconomy_setShop(true);
                             world.spawnEntity(itemEntity);
                             ((SignBlockEntityInterface) be).diamondeconomy_setItemEntity(itemEntity.getUuid());

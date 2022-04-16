@@ -3,8 +3,6 @@ package com.gmail.sneakdevs.diamondeconomy.mixin;
 import com.gmail.sneakdevs.diamondeconomy.config.DEConfig;
 import com.gmail.sneakdevs.diamondeconomy.interfaces.ItemEntityInterface;
 import me.shedaniel.autoconfig.AutoConfig;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -22,15 +20,13 @@ public class ItemEntityMixin implements ItemEntityInterface {
     public void diamondeconomy_setShop(boolean newVal) {
         this.diamondeconomy_isShop = newVal;
     }
-    public boolean diamondeconomy_getShop() {
-        return this.diamondeconomy_isShop;
-    }
 
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void diamondeconomy_tickMixin(CallbackInfo ci) {
         if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().chestShops && diamondeconomy_isShop) {
-            if (((ItemEntity)(Object)this).world.getBlockEntity(((ItemEntity)(Object)this).getBlockPos()) instanceof LockableContainerBlockEntity) {
+            if (((ItemEntity)(Object)this).world.getBlockEntity(((ItemEntity)(Object)this).getBlockPos().down()) instanceof LockableContainerBlockEntity ||
+                    ((ItemEntity)(Object)this).world.getBlockEntity(((ItemEntity)(Object)this).getBlockPos().down(2)) instanceof LockableContainerBlockEntity) {
                 ((ItemEntity)(Object) this).setVelocity(0, 0, 0);
                 if (!canTick) {
                     ci.cancel();
