@@ -8,6 +8,7 @@ import com.gmail.sneakdevs.diamondeconomy.interfaces.SignBlockEntityInterface;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.block.AbstractSignBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.HorizontalFacingBlock;
 import net.minecraft.block.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
@@ -30,9 +31,24 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Objects;
+
 @Mixin(AbstractSignBlock.class)
-public class AbstractSignBlockMixin {
-    //todo: onBreak make chest no longer shop
+public abstract class AbstractSignBlockMixin extends BlockWithEntity {
+    protected AbstractSignBlockMixin(Settings settings) {
+        super(settings);
+    }
+
+    //remove shop from chest
+    @Override
+    public void onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+        if (!world.isClient() && ((SignBlockEntityInterface) Objects.requireNonNull(world.getBlockEntity(pos))).diamondeconomy_getShop()) {
+            BlockPos hangingPos = pos.add(state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetX(), state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetY(), state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetZ());
+            if (!(world.getBlockEntity(hangingPos) instanceof LockableContainerBlockEntity shop)) return;
+            ((LockableContainerBlockEntityInterface)shop).diamondeconomy_setShop(false);
+            shop.markDirty();
+        }
+    }
 
     @Inject(method = "onUse", at = @At("HEAD"))
     private void diamondeconomy_onUseMixin(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
@@ -225,36 +241,70 @@ public class AbstractSignBlockMixin {
             }
 
             //create the chest shop
-            if (item.equals(DEConfig.getCurrency()) && !nbt.getBoolean("diamond_economy_IsShop") && nbt.getString("diamond_economy_ShopOwner").equals(player.getUuidAsString()) && !player.getOffHandStack().getItem().equals(Items.AIR)) {
+            if (item.equals(DEConfig.getCurrency())) {
+                if (nbt.getBoolean("diamond_economy_IsShop")) {
+                    Text text = new LiteralText("This is already a shop");
+                    player.sendMessage(text, true);
+                    return;
+                }
+
                 BlockPos hangingPos = pos.add(state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetX(), state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetY(), state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetZ());
-                if (world.getBlockEntity(hangingPos) instanceof LockableContainerBlockEntity) {
-                    if (DiamondEconomy.signTextToReadable(nbt.getString("Text1")).contains("sell") || DiamondEconomy.signTextToReadable(nbt.getString("Text1")).contains("buy")) {
-                        try {
-                            LockableContainerBlockEntity shop = (LockableContainerBlockEntity) world.getBlockEntity(hangingPos);
-                            int quantity = Integer.parseInt(DiamondEconomy.signTextToReadable(nbt.getString("Text2")));
-                            int money = Integer.parseInt(DiamondEconomy.signTextToReadable(nbt.getString("Text3")));
-                            if (quantity >= 1) {
-                                if (money >= 0) {
-                                    ((SignBlockEntityInterface) be).diamondeconomy_setShop(true);
-                                    ((LockableContainerBlockEntityInterface) shop).diamondeconomy_setShop(true);
-                                    ((LockableContainerBlockEntityInterface) shop).diamondeconomy_setItem(Registry.ITEM.getId(player.getOffHandStack().getItem()).toString());
-                                    be.markDirty();
-                                    shop.markDirty();
-                                    Text text = new LiteralText("Created shop with " + quantity + " " + player.getOffHandStack().getItem().getName().getString() + (((nbt.getString("Text1")).contains("sell")) ? " sold for " : " bought for ") + money + " " + DEConfig.getCurrencyName());
-                                    player.sendMessage(text, true);
-                                } else {
-                                    Text text = new LiteralText("Positive quantity required");
-                                    player.sendMessage(text, true);
-                                }
-                            } else {
-                                Text text = new LiteralText("Negative prices are not allowed");
-                                player.sendMessage(text, true);
-                            }
-                        } catch (NumberFormatException ignored) {}
+                if (!(world.getBlockEntity(hangingPos) instanceof LockableContainerBlockEntity shop)) {
+                    Text text = new LiteralText("Sign must be on a container");
+                    player.sendMessage(text, true);
+                    return;
+                }
+
+                if (!nbt.getString("diamond_economy_ShopOwner").equals(player.getUuidAsString()) || !((LockableContainerBlockEntityInterface)shop).diamondeconomy_getOwner().equals(player.getUuidAsString())) {
+                    Text text = new LiteralText("You must have placed down the sign and chest");
+                    player.sendMessage(text, true);
+                    return;
+                }
+
+                if (player.getOffHandStack().getItem().equals(Items.AIR)) {
+                    Text text = new LiteralText("The sell item must be in your offhand");
+                    player.sendMessage(text, true);
+                    return;
+                }
+
+                if (!(DiamondEconomy.signTextToReadable(nbt.getString("Text1")).equals("sell") || DiamondEconomy.signTextToReadable(nbt.getString("Text1")).equals("buy"))) {
+                    Text text = new LiteralText("The first line must be either \"Buy\" or \"Sell\"");
+                    player.sendMessage(text, true);
+                    return;
+                }
+
+                if (((LockableContainerBlockEntityInterface)shop).diamondeconomy_getShop()) {
+                    Text text = new LiteralText("That chest already is a shop");
+                    player.sendMessage(text, true);
+                    return;
+                }
+
+                try {
+                    int quantity = Integer.parseInt(DiamondEconomy.signTextToReadable(nbt.getString("Text2")));
+                    int money = Integer.parseInt(DiamondEconomy.signTextToReadable(nbt.getString("Text3")));
+                    if (quantity >= 1) {
+                        if (money >= 0) {
+                            ((SignBlockEntityInterface) be).diamondeconomy_setShop(true);
+                            ((LockableContainerBlockEntityInterface) shop).diamondeconomy_setShop(true);
+                            ((LockableContainerBlockEntityInterface) shop).diamondeconomy_setItem(Registry.ITEM.getId(player.getOffHandStack().getItem()).toString());
+                            be.markDirty();
+                            shop.markDirty();
+                            Text text = new LiteralText("Created shop with " + quantity + " " + player.getOffHandStack().getItem().getName().getString() + (((nbt.getString("Text1")).contains("sell")) ? " sold for " : " bought for ") + money + " " + DEConfig.getCurrencyName());
+                            player.sendMessage(text, true);
+                        } else {
+                            Text text = new LiteralText("Positive quantity required");
+                            player.sendMessage(text, true);
+                        }
+                    } else {
+                        Text text = new LiteralText("Negative prices are not allowed");
+                        player.sendMessage(text, true);
+
                     }
+                } catch (NumberFormatException ignored) {
+                    Text text = new LiteralText("The second and third lines must be numbers (quantity then money)");
+                    player.sendMessage(text, true);
                 }
             }
-
         }
     }
 }

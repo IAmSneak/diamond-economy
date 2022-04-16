@@ -6,4 +6,5 @@ public interface LockableContainerBlockEntityInterface {
     void diamondeconomy_setItem(String newItem);
     String diamondeconomy_getOwner();
     String diamondeconomy_getItem();
+    boolean diamondeconomy_getShop();
 }

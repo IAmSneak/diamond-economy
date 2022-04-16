@@ -20,6 +20,7 @@ public class SignBlockEntityMixin implements SignBlockEntityInterface {
     public void diamondeconomy_setShop(boolean newShop) {this.diamondeconomy_isShop = newShop;}
     public void diamondeconomy_setAdminShop(boolean newAdminShop) {this.diamondeconomy_isAdminShop = newAdminShop;}
     public boolean diamondeconomy_getAdminShop() {return this.diamondeconomy_isAdminShop;}
+    public boolean diamondeconomy_getShop() {return this.diamondeconomy_isShop;}
 
     @Inject(method = "writeNbt", at = @At("TAIL"))
     private void diamondeconomy_writeNbtMixin(NbtCompound nbt, CallbackInfo ci) {

@@ -28,6 +28,7 @@ public class LockableContainerBlockEntityMixin implements LockableContainerBlock
 
     public String diamondeconomy_getOwner() {return this.diamondeconomy_owner;}
     public String diamondeconomy_getItem() {return this.diamondeconomy_item;}
+    public boolean diamondeconomy_getShop() {return this.diamondeconomy_isShop;}
 
     @Inject(method = "writeNbt", at = @At("TAIL"))
     private void diamondeconomy_writeNbtMixin(NbtCompound nbt, CallbackInfo ci) {

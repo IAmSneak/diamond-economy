@@ -5,4 +5,5 @@ public interface SignBlockEntityInterface {
     void diamondeconomy_setShop(boolean newShop);
     void diamondeconomy_setAdminShop(boolean newAdminShop);
     boolean diamondeconomy_getAdminShop();
+    boolean diamondeconomy_getShop();
 }
