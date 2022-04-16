@@ -57,6 +57,7 @@ public class LockableContainerBlockEntityMixin implements LockableContainerBlock
     private void diamondeconomy_checkUnlockedMixin(PlayerEntity player, CallbackInfoReturnable<Boolean> cir) {
         if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().chestShops) {
             if (!cir.getReturnValue()) return;
+            if (player.isCreative()) return;
             if (diamondeconomy_isShop) {
                 if (diamondeconomy_owner.equals(player.getUuidAsString())) {
                     cir.setReturnValue(true);

@@ -32,6 +32,7 @@ public class ServerPlayerInteractionManagerMixin {
     @Inject(method = "tryBreakBlock", at = @At("HEAD"), cancellable = true)
     private void diamondeconomy_tryBreakBlock(BlockPos pos, CallbackInfoReturnable<Boolean> info) {
         if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().chestShops) {
+            if (player.isCreative()) return;
             BlockEntity be = world.getBlockEntity(pos);
             if (!(be instanceof LockableContainerBlockEntity || be instanceof SignBlockEntity)) return;
             if (be instanceof LockableContainerBlockEntity) {
