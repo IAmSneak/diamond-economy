@@ -4,11 +4,14 @@ import com.gmail.sneakdevs.diamondeconomy.interfaces.LockableContainerBlockEntit
 import com.gmail.sneakdevs.diamondeconomy.config.DEConfig;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.block.entity.LockableContainerBlockEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.text.LiteralText;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LockableContainerBlockEntity.class)
 public class LockableContainerBlockEntityMixin implements LockableContainerBlockEntityInterface {
@@ -47,6 +50,22 @@ public class LockableContainerBlockEntityMixin implements LockableContainerBlock
             this.diamondeconomy_owner = nbt.getString("diamond_economy_ShopOwner");
             this.diamondeconomy_item = nbt.getString("diamond_economy_ShopItem");
             this.diamondeconomy_isShop = nbt.getBoolean("diamond_economy_IsShop");
+        }
+    }
+
+    @Inject(method = "checkUnlocked(Lnet/minecraft/entity/player/PlayerEntity;)Z", at = @At("RETURN"), cancellable = true)
+    private void diamondeconomy_checkUnlockedMixin(PlayerEntity player, CallbackInfoReturnable<Boolean> cir) {
+        if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().chestShops) {
+            if (!cir.getReturnValue()) return;
+            if (diamondeconomy_isShop) {
+                if (diamondeconomy_owner.equals(player.getUuidAsString())) {
+                    cir.setReturnValue(true);
+                    return;
+                }
+                System.out.println(diamondeconomy_owner + " : " + player.getUuidAsString() + " : " + diamondeconomy_owner.equals(player.getUuidAsString()));
+                player.sendMessage(new LiteralText("Cannot open another player's shop"), true);
+                cir.setReturnValue(false);
+            }
         }
     }
 }

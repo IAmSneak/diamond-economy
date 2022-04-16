@@ -64,8 +64,7 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                 if (item.equals(Items.COMMAND_BLOCK)) {
                     ((SignBlockEntityInterface)be).diamondeconomy_setAdminShop(!((SignBlockEntityInterface)be).diamondeconomy_getAdminShop());
                     be.markDirty();
-                    Text text = new LiteralText((((SignBlockEntityInterface)be).diamondeconomy_getAdminShop()) ? "Created admin shop" : "Removed admin shop");
-                    player.sendMessage(text, true);
+                    player.sendMessage(new LiteralText((((SignBlockEntityInterface)be).diamondeconomy_getAdminShop()) ? "Created admin shop" : "Removed admin shop"), true);
                     return;
                 }
                 if (!nbt.getString("diamond_economy_ShopOwner").equals(player.getUuidAsString()) || ((SignBlockEntityInterface)be).diamondeconomy_getAdminShop()) {
@@ -82,13 +81,11 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                             Item sellItem = Registry.ITEM.get(Identifier.tryParse(((LockableContainerBlockEntityInterface) shop).diamondeconomy_getItem()));
 
                             if (dm.getBalanceFromUUID(player.getUuidAsString()) < money) {
-                                Text text = new LiteralText("You dont have enough money");
-                                player.sendMessage(text, true);
+                                player.sendMessage(new LiteralText("You dont have enough money"), true);
                                 return;
                             }
                             if (dm.getBalanceFromUUID(owner) + money >= Integer.MAX_VALUE && !((SignBlockEntityInterface)be).diamondeconomy_getAdminShop()) {
-                                Text text = new LiteralText("The owner is too rich");
-                                player.sendMessage(text, true);
+                                player.sendMessage(new LiteralText("The owner is too rich"), true);
                                 return;
                             }
 
@@ -101,8 +98,7 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                                     }
                                 }
                                 if (itemCount < quantity) {
-                                    Text text = new LiteralText("The shop is sold out");
-                                    player.sendMessage(text, true);
+                                    player.sendMessage(new LiteralText("The shop is sold out"), true);
                                     return;
                                 }
 
@@ -132,8 +128,7 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                                 dm.setBalance(owner, dm.getBalanceFromUUID(owner) + money);
                             }
 
-                            Text text = new LiteralText("Bought " + quantity + " " + sellItem.getName().getString() + " for " + money + " " + DEConfig.getCurrencyName());
-                            player.sendMessage(text, true);
+                            player.sendMessage(new LiteralText("Bought " + quantity + " " + sellItem.getName().getString() + " for " + money + " " + DEConfig.getCurrencyName()), true);
                             return;
                         } catch (NumberFormatException ignored) {return;}
                     }
@@ -151,14 +146,12 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                             Item buyItem = Registry.ITEM.get(Identifier.tryParse(((LockableContainerBlockEntityInterface)shop).diamondeconomy_getItem()));
 
                             if (dm.getBalanceFromUUID(owner) < money && !((SignBlockEntityInterface)be).diamondeconomy_getAdminShop()) {
-                                Text text = new LiteralText("The owner hasn't got enough money");
-                                player.sendMessage(text, true);
+                                player.sendMessage(new LiteralText("The owner hasn't got enough money"), true);
                                 return;
                             }
 
                             if (dm.getBalanceFromUUID(player.getUuidAsString()) + money >= Integer.MAX_VALUE) {
-                                Text text = new LiteralText("You are too rich");
-                                player.sendMessage(text, true);
+                                player.sendMessage(new LiteralText("You are too rich"), true);
                                 return;
                             }
 
@@ -170,8 +163,7 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                                 }
                             }
                             if (itemCount < quantity) {
-                                Text text = new LiteralText("You don't have enough of that item");
-                                player.sendMessage(text, true);
+                                player.sendMessage(new LiteralText("You don't have enough of that item"), true);
                                 return;
                             }
                             int emptyspaces = 0;
@@ -185,8 +177,7 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                                 }
                             }
                             if (emptyspaces < quantity) {
-                                Text text = new LiteralText("The chest is full");
-                                player.sendMessage(text, true);
+                                player.sendMessage(new LiteralText("The chest is full"), true);
                                 return;
                             }
 
@@ -232,8 +223,7 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                             }
                             dm.setBalance(player.getUuidAsString(), dm.getBalanceFromUUID(player.getUuidAsString()) + money);
 
-                            Text text = new LiteralText("Sold " + quantity + " " + buyItem.getName().getString() + " for " + money + " " + DEConfig.getCurrencyName());
-                            player.sendMessage(text, true);
+                            player.sendMessage(new LiteralText("Sold " + quantity + " " + buyItem.getName().getString() + " for " + money + " " + DEConfig.getCurrencyName()), true);
                             return;
                         } catch (NumberFormatException ignored) {return;}
                     }
@@ -243,39 +233,33 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
             //create the chest shop
             if (item.equals(DEConfig.getCurrency())) {
                 if (nbt.getBoolean("diamond_economy_IsShop")) {
-                    Text text = new LiteralText("This is already a shop");
-                    player.sendMessage(text, true);
+                    player.sendMessage(new LiteralText("This is already a shop"), true);
                     return;
                 }
 
                 BlockPos hangingPos = pos.add(state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetX(), state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetY(), state.get(HorizontalFacingBlock.FACING).getOpposite().getOffsetZ());
                 if (!(world.getBlockEntity(hangingPos) instanceof LockableContainerBlockEntity shop)) {
-                    Text text = new LiteralText("Sign must be on a container");
-                    player.sendMessage(text, true);
+                    player.sendMessage(new LiteralText("Sign must be on a container"), true);
                     return;
                 }
 
                 if (!nbt.getString("diamond_economy_ShopOwner").equals(player.getUuidAsString()) || !((LockableContainerBlockEntityInterface)shop).diamondeconomy_getOwner().equals(player.getUuidAsString())) {
-                    Text text = new LiteralText("You must have placed down the sign and chest");
-                    player.sendMessage(text, true);
+                    player.sendMessage(new LiteralText("You must have placed down the sign and chest"), true);
                     return;
                 }
 
                 if (player.getOffHandStack().getItem().equals(Items.AIR)) {
-                    Text text = new LiteralText("The sell item must be in your offhand");
-                    player.sendMessage(text, true);
+                    player.sendMessage(new LiteralText("The sell item must be in your offhand"), true);
                     return;
                 }
 
                 if (!(DiamondEconomy.signTextToReadable(nbt.getString("Text1")).equals("sell") || DiamondEconomy.signTextToReadable(nbt.getString("Text1")).equals("buy"))) {
-                    Text text = new LiteralText("The first line must be either \"Buy\" or \"Sell\"");
-                    player.sendMessage(text, true);
+                    player.sendMessage(new LiteralText("The first line must be either \"Buy\" or \"Sell\""), true);
                     return;
                 }
 
                 if (((LockableContainerBlockEntityInterface)shop).diamondeconomy_getShop()) {
-                    Text text = new LiteralText("That chest already is a shop");
-                    player.sendMessage(text, true);
+                    player.sendMessage(new LiteralText("That chest already is a shop"), true);
                     return;
                 }
 
@@ -289,20 +273,16 @@ public abstract class AbstractSignBlockMixin extends BlockWithEntity {
                             ((LockableContainerBlockEntityInterface) shop).diamondeconomy_setItem(Registry.ITEM.getId(player.getOffHandStack().getItem()).toString());
                             be.markDirty();
                             shop.markDirty();
-                            Text text = new LiteralText("Created shop with " + quantity + " " + player.getOffHandStack().getItem().getName().getString() + (((nbt.getString("Text1")).contains("sell")) ? " sold for " : " bought for ") + money + " " + DEConfig.getCurrencyName());
-                            player.sendMessage(text, true);
+                            player.sendMessage(new LiteralText("Created shop with " + quantity + " " + player.getOffHandStack().getItem().getName().getString() + (((nbt.getString("Text1")).contains("sell")) ? " sold for " : " bought for ") + money + " " + DEConfig.getCurrencyName()), true);
                         } else {
-                            Text text = new LiteralText("Positive quantity required");
-                            player.sendMessage(text, true);
+                            player.sendMessage(new LiteralText("Positive quantity required"), true);
                         }
                     } else {
-                        Text text = new LiteralText("Negative prices are not allowed");
-                        player.sendMessage(text, true);
+                        player.sendMessage(new LiteralText("Negative prices are not allowed"), true);
 
                     }
                 } catch (NumberFormatException ignored) {
-                    Text text = new LiteralText("The second and third lines must be numbers (quantity then money)");
-                    player.sendMessage(text, true);
+                    player.sendMessage(new LiteralText("The second and third lines must be numbers (quantity then money)"), true);
                 }
             }
         }
