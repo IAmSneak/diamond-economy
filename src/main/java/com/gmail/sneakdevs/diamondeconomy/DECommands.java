@@ -303,11 +303,6 @@ public class DECommands {
         return 1;
     }
 
-    private static int chestshopCommand(CommandContext<ServerCommandSource> ctx) {
-        ctx.getSource().sendFeedback(new LiteralText("To create a chest shop: \n" + "1) place a chest with a sign attached \n" + "2) write \"buy\" or \"sell\" on the first line \n" + "3) write the quantity of the item to be exchanged on the second line \n" + "4) write the amount of currency to be exchanged on the third line \n" + "5) hold the item to sell in your offhand and click the sign with a " + DEConfig.getCurrencyName()), false);
-        return 1;
-    }
-
     private static int historyCommand(CommandContext<ServerCommandSource> ctx, int page) {
         if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().transactionHistory) {
             DatabaseManager dm = new DatabaseManager();
