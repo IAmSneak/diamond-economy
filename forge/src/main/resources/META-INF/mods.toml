@@ -1,0 +1,35 @@
+modLoader = "javafml"
+loaderVersion = "[40,)"
+#issueTrackerURL = ""
+license = "MIT"
+
+[[mods]]
+modId = "diamondeconomy"
+version = "${version}"
+displayName = "Diamond Economy"
+authors = "IAmSneak"
+description = '''
+Serverside economy mod with diamonds
+'''
+logoFile = "icon.png"
+
+[[dependencies.diamondeconomy]]
+modId = "forge"
+mandatory = true
+versionRange = "[40,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.diamondeconomy]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.18.2,)"
+ordering = "NONE"
+side = "BOTH"
+
+#[[dependencies.diamondeconomy]]
+#modId = "cloth-config2"
+#mandatory = true
+#versionRange = "[6.2.57,)"
+#ordering = "NONE"
+#side = "BOTH"
