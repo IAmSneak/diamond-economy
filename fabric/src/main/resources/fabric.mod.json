@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "diamondeconomy",
+  "version": "${version}",
+
+  "name": "Diamond Economy",
+  "description": "Serverside economy mod with diamonds",
+  "authors": [
+    "IAmSneak"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": ""
+  },
+
+  "license": "MIT",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.gmail.sneakdevs.diamondeconomyfabric.DiamondEconomyFabric"
+    ]
+  },
+  "mixins": [
+    "diamondeconomy.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.4",
+    "fabric": "*",
+    "cloth-config2": ">=6.2.57"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
