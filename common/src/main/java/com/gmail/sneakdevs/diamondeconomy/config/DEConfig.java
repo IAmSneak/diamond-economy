@@ -10,6 +10,7 @@ import net.minecraft.util.registry.Registry;
 @Config(name = "diamond_economy")
 public class DEConfig implements ConfigData {
     public boolean transactionHistory = true;
+    public boolean withdrawCommand = true;
     public String commandName = "diamonds";
     public String currency = "minecraft:diamond";
 

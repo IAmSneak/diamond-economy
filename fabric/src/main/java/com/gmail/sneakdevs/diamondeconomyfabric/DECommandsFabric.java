@@ -148,5 +148,21 @@ public class DECommandsFabric {
                             )
             );
         }
+
+        if (AutoConfig.getConfigHolder(DEConfig.class).getConfig().withdrawCommand) {
+            dispatcher.register(
+                    CommandManager.literal(AutoConfig.getConfigHolder(DEConfig.class).getConfig().commandName)
+                            .then(
+                                    CommandManager.literal("withdraw")
+                                            .then(
+                                                    CommandManager.argument("amount", IntegerArgumentType.integer(1))
+                                                            .executes(e -> {
+                                                                int amount = IntegerArgumentType.getInteger(e, "amount");
+                                                                return DECommands.withdrawCommand(e, amount);
+                                                            })
+                                            )
+                            )
+            );
+        }
     }
 }
