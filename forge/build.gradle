@@ -10,6 +10,8 @@ architectury {
 configurations {
     common
     shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    shade
+    implementation.extendsFrom shade
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
@@ -17,7 +19,9 @@ configurations {
 
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
-    implementation(include('org.xerial:sqlite-jdbc:3.36.0.3'))
+    modApi "me.shedaniel.cloth:cloth-config-forge:${rootProject.cloth_config_version}"
+
+    shade ('org.xerial:sqlite-jdbc:3.36.0.3')
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
@@ -38,6 +42,7 @@ shadowJar {
     configurations = [project.configurations.shadowCommon]
     classifier "dev-shadow"
 }
+assemble.dependsOn shadowJar
 
 remapJar {
     input.set shadowJar.archiveFile
@@ -73,8 +78,4 @@ publishing {
     repositories {
         // Add repositories to publish to here.
     }
-}
-
-repositories {
-    mavenCentral()
 }
