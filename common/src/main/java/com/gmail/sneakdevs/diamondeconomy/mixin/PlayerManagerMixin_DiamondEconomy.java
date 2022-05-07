@@ -14,10 +14,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class PlayerManagerMixin_DiamondEconomy {
     @Inject(method = "onPlayerConnect", at = @At("TAIL"))
     private void diamondeconomy_onPlayerConnectMixin(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
-        //DatabaseManager dm = DiamondEconomy.getDatabaseManager();
-        //String uuid = player.getUuidAsString();
-        //String name = player.getName().asString();
-        //dm.addPlayer(uuid, name);
-        //dm.setName(uuid, name);
+        DatabaseManager dm = DiamondEconomy.getDatabaseManager();
+        String uuid = player.getUuidAsString();
+        String name = player.getName().asString();
+        dm.addPlayer(uuid, name);
+        dm.setName(uuid, name);
     }
 }
