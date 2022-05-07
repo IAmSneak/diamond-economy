@@ -1,7 +1,8 @@
 package com.gmail.sneakdevs.diamondeconomyfabric;
 
+import com.gmail.sneakdevs.diamondeconomy.DiamondEconomyCommands;
 import com.gmail.sneakdevs.diamondeconomy.DiamondEconomy;
-import com.gmail.sneakdevs.diamondeconomy.config.DEConfig;
+import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import com.gmail.sneakdevs.diamondeconomy.sql.SQLiteDatabaseManager;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
@@ -18,8 +19,8 @@ public class DiamondEconomyFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        AutoConfig.register(DEConfig.class, Toml4jConfigSerializer::new);
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> DECommandsFabric.register(dispatcher));
+        AutoConfig.register(DiamondEconomyConfig.class, Toml4jConfigSerializer::new);
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> DiamondEconomyCommands.register(dispatcher));
         ServerLifecycleEvents.SERVER_STARTING.register(DiamondEconomyFabric::serverStarting);
     }
 }
