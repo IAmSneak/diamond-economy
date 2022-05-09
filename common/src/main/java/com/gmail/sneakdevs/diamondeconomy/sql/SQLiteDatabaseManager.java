@@ -191,25 +191,31 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         return false;
     }
 
-    public String top(String uuid, int topAmount){
+    public String top(String uuid, int page){
         String sql = "SELECT uuid, name, money FROM diamonds ORDER BY money DESC";
         String rankings = "";
         int i = 0;
         int playerRank = 0;
+        int repeats = 0;
 
         try (Connection conn = this.connect();
              Statement stmt  = conn.createStatement();
              ResultSet rs    = stmt.executeQuery(sql)){
 
             // loop through the result set
-            while (rs.next() && (i < topAmount || playerRank == 0)) {
+            while (rs.next() && (i < 10 || playerRank == 0)) {
+                if (repeats / 10 + 1 == page) {
+                    rankings.concat(rs.getRow() + ") " + rs.getString("name") + "  " + rs.getInt("money") + "\n");
+                    i++;
+                }
+                repeats++;
                 i++;
                 if (uuid.equals(rs.getString("uuid"))) {
                     playerRank = i;
                 }
-                if (i <= topAmount) {
-                    rankings = rankings.concat(rs.getString("name") + "  " + rs.getInt("money") + "\n");
-                }
+            }
+            if (i < 10) {
+                history.append("\n").append("---End---");
             }
         } catch (SQLException e) {
             e.printStackTrace();

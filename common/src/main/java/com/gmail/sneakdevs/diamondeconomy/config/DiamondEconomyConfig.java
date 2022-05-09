@@ -18,7 +18,7 @@ public class DiamondEconomyConfig implements ConfigData {
     @Comment("List of items used as currency (default: \"minecraft:diamond\")")
     public String[] currencies = {"minecraft:diamond"};
 
-    @Comment("Values of each currency in the same order, decimals not allowed (default: \"1\")")
+    @Comment("Values of each currency in the same order, decimals not allowed (must have unique values in ascending order)")
     public int[] currencyValues = {1};
 
     @Comment("Enable/disable the withdraw command (default: true)")
@@ -30,6 +30,10 @@ public class DiamondEconomyConfig implements ConfigData {
 
     public static Item getCurrency(int num) {
         return Registry.ITEM.get(Identifier.tryParse(DiamondEconomyConfig.getInstance().currencies[num]));
+    }
+
+    public static int[] getCurrencyValues() {
+        register DiamondEconomyConfig.getInstance().currencyValues;
     }
 
     public static DiamondEconomyConfig getInstance() {

@@ -62,10 +62,10 @@ public class DiamondEconomyCommands {
                                                 CommandManager.argument("amount", IntegerArgumentType.integer(1))
                                                         .executes(e -> {
                                                             int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                            return DiamondEconomyCommands.depositCommand(e, amount, DiamondEconomyConfig.getCurrency(0));
+                                                            return DiamondEconomyCommands.depositCommand(e, amount);
                                                         })
                                         )
-                                        .executes(e -> DiamondEconomyCommands.depositCommand(e, 0, DiamondEconomyConfig.getCurrency(0)))
+                                        .executes(e -> DiamondEconomyCommands.depositCommand(e, 0))
                         )
                         .then(
                                 CommandManager.literal("send")
@@ -124,7 +124,7 @@ public class DiamondEconomyCommands {
                                                     CommandManager.argument("amount", IntegerArgumentType.integer(1))
                                                             .executes(e -> {
                                                                 int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                                return DiamondEconomyCommands.withdrawCommand(e, amount, DiamondEconomyConfig.getCurrency(0));
+                                                                return DiamondEconomyCommands.withdrawCommand(e, amount);
                                                             })
                                             )
                             )
@@ -132,13 +132,13 @@ public class DiamondEconomyCommands {
         }
     }
 
-    public static int withdrawCommand(CommandContext<ServerCommandSource> ctx, int amount, Item item) throws CommandSyntaxException {
+    public static int withdrawCommand(CommandContext<ServerCommandSource> ctx, int amount) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         DatabaseManager dm = DiamondEconomy.getDatabaseManager();
         String uuid = player.getUuidAsString();
 
         if (dm.changeBalance(uuid, -amount)) {
-            DiamondEconomy.dropItem(item, amount, player);
+            DiamondEconomy.dropItem(amount, player);
             ctx.getSource().sendFeedback(new LiteralText("Withdrew $" + amount), false);
             return 1;
         }
@@ -147,7 +147,7 @@ public class DiamondEconomyCommands {
         return 1;
     }
 
-    public static int depositCommand(CommandContext<ServerCommandSource> ctx, int amount, Item item) throws CommandSyntaxException {
+    public static int depositCommand(CommandContext<ServerCommandSource> ctx, int amount) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         DatabaseManager dm = DiamondEconomy.getDatabaseManager();
         int currencyCount = 0;
@@ -168,17 +168,17 @@ public class DiamondEconomyCommands {
                     ctx.getSource().sendFeedback(new LiteralText("Added " + currencyCount + " " + item.getName().asString() + " to your account"), false);
                     return 1;
                 }
-                DiamondEconomy.dropItem(item, currencyCount, player);
+                DiamondEconomy.dropItem(currencyCount, player);
                 ctx.getSource().sendFeedback(new LiteralText("You do not have enough room in your account"), false);
                 return 1;
             }
 
             if (amount > currencyCount) {
-                DiamondEconomy.dropItem(item, currencyCount, player);
+                DiamondEconomy.dropItem(currencyCount, player);
                 ctx.getSource().sendFeedback(new LiteralText("You do not have enough " + item.getName().asString() + " in your inventory"), false);
                 return 1;
             }
-            DiamondEconomy.dropItem(item, currencyCount - amount, player);
+            DiamondEconomy.dropItem(currencyCount - amount, player);
             dm.setBalance(player.getUuidAsString(), amount + bal);
             ctx.getSource().sendFeedback(new LiteralText("Added " + amount + " money to your account"), false);
             return 1;
