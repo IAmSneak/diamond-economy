@@ -21,15 +21,8 @@ public class DiamondEconomyConfig implements ConfigData {
     @Comment("Values of each currency in the same order, decimals not allowed (default: \"1\")")
     public int[] currencyValues = {1};
 
-    @Comment("Enable/disable logging transactions (default: false)")
-    public boolean transactionHistory = false;
-
-    @Comment("Enable/disable the withdraw command (Recommended, default: true)")
+    @Comment("Enable/disable the withdraw command (default: true)")
     public boolean withdrawCommand = true;
-
-    @Comment("Store the amount of each currency instead of only the money amount (Recommended, default: true)\n" +
-            "Disabling this and keeping the withdraw command allows currency conversion through withdraw")
-    public boolean storeCurrency = true;
 
     public static String getCurrencyName(int num) {
         return Registry.ITEM.get(Identifier.tryParse(DiamondEconomyConfig.getInstance().currencies[num])).getName().getString();

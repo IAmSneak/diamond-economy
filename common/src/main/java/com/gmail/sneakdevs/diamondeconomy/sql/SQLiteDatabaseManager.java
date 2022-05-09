@@ -34,12 +34,9 @@ public class SQLiteDatabaseManager implements DatabaseManager {
     private static void createNewTable() {
         // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS diamonds (uuid text PRIMARY KEY, name text NOT NULL, money integer DEFAULT 0);";
-        String sql2 = "CREATE TABLE IF NOT EXISTS transactions (transactionid integer PRIMARY KEY AUTOINCREMENT, time integer, type integer, executer text, victim text, amount integer, oldval integer);";
 
         try (Connection conn = DriverManager.getConnection(url); Statement stmt = conn.createStatement()) {
-            // create a new table
             stmt.execute(sql);
-            stmt.execute(sql2);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -182,7 +179,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
 
         try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             int bal = pstmt.getResultSet().getInt(money);
-            if (bal + money >= 0) {
+            if (bal + money >= 0 && bal + money < Integer.MAX_VALUE) {
                 pstmt.setInt(1, bal + money);
                 pstmt.setString(2, uuid);
                 pstmt.executeUpdate();
@@ -218,43 +215,5 @@ public class SQLiteDatabaseManager implements DatabaseManager {
             e.printStackTrace();
         }
         return rankings.concat("Your rank is: " + playerRank);
-    }
-
-    public String history(int page){
-        String sql = "SELECT time,type,executer,victim,amount,oldval FROM transactions ORDER BY transactionid DESC";
-        StringBuilder history = new StringBuilder();
-        int i = 0;
-        int repeats = 0;
-
-        try (Connection conn = this.connect();
-             Statement stmt  = conn.createStatement();
-             ResultSet rs    = stmt.executeQuery(sql)){
-
-            while (rs.next() && i < 8) {
-                if (repeats / 8 + 1 == page) {
-                    history.append("\n").append(getMessage(rs.getString("type"), getNameFromUUID(rs.getString("executer")), getNameFromUUID(rs.getString("victim")), rs.getInt("amount"), rs.getLong("time"), rs.getInt("oldval")));
-                    i++;
-                }
-                repeats++;
-            }
-            if (i < 8) {
-                history.append("\n").append("End of Transaction History");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return history.toString();
-    }
-
-    public String getMessage(String type, String executer, String victim, int amount, long time, int oldVal){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date resultTime = new Date(time);
-        return switch (type) {
-            case "take" -> executer + " took " + amount + " from " + victim + " on " + sdf.format(resultTime);
-            case "send" -> executer + " sent " + amount + " to " + victim + " on " + sdf.format(resultTime);
-            case "give" -> executer + " gave " + amount + " to " + victim + " on " + sdf.format(resultTime);
-            case "set" -> executer + " set " + victim + "'s balance to " + amount + " from " + oldVal + " on " + sdf.format(resultTime);
-            default -> "Unknown Transaction";
-        };
     }
 }

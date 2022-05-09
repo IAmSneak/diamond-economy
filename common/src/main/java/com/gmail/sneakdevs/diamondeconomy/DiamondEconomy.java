@@ -28,4 +28,12 @@ public class DiamondEconomy {
         itemEntity2.resetPickupDelay();
         itemEntity2.setOwner(player.getUuid());
     }
+
+    public static String getExecuterUUID(CommandContext<ServerCommandSource> ctx) {
+        try {
+            return ctx.getSource().getPlayer().getUuidAsString();
+        } catch (CommandSyntaxException e) {
+            return "@";
+        }
+    }
 }

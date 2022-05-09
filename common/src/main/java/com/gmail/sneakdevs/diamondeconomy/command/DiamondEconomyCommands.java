@@ -62,10 +62,10 @@ public class DiamondEconomyCommands {
                                                 CommandManager.argument("amount", IntegerArgumentType.integer(1))
                                                         .executes(e -> {
                                                             int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                            return DiamondEconomyCommands.depositCommand(e, amount, null);
+                                                            return DiamondEconomyCommands.depositCommand(e, amount, DiamondEconomyConfig.getCurrency(0));
                                                         })
                                         )
-                                        .executes(e -> DiamondEconomyCommands.depositCommand(e, 0, null))
+                                        .executes(e -> DiamondEconomyCommands.depositCommand(e, 0, DiamondEconomyConfig.getCurrency(0)))
                         )
                         .then(
                                 CommandManager.literal("send")
@@ -85,29 +85,15 @@ public class DiamondEconomyCommands {
                                 CommandManager.literal("admin")
                                         .requires((permission) -> permission.hasPermissionLevel(4))
                                         .then(
-                                                CommandManager.literal("take")
+                                                CommandManager.literal("modify")
                                                         .requires((permission) -> permission.hasPermissionLevel(4))
                                                         .then(
                                                                 CommandManager.argument("players", EntityArgumentType.players())
                                                                         .then(
-                                                                                CommandManager.argument("amount", IntegerArgumentType.integer(1))
+                                                                                CommandManager.argument("amount", IntegerArgumentType.integer())
                                                                                         .executes(e -> {
                                                                                             int amount = IntegerArgumentType.getInteger(e, "amount");
                                                                                             return DiamondEconomyCommands.takeCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
-                                                                                        })
-                                                                        )
-                                                        )
-                                        )
-                                        .then(
-                                                CommandManager.literal("give")
-                                                        .requires((permission) -> permission.hasPermissionLevel(4))
-                                                        .then(
-                                                                CommandManager.argument("players", EntityArgumentType.players())
-                                                                        .then(
-                                                                                CommandManager.argument("amount", IntegerArgumentType.integer(1))
-                                                                                        .executes(e -> {
-                                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                                                            return DiamondEconomyCommands.giveCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
                                                                                         })
                                                                         )
                                                         )
@@ -129,27 +115,6 @@ public class DiamondEconomyCommands {
                         )
         );
 
-        if (DiamondEconomyConfig.getInstance().transactionHistory) {
-            dispatcher.register(
-                    CommandManager.literal(DiamondEconomyConfig.getInstance().commandName)
-                            .then(
-                                    CommandManager.literal("admin")
-                                            .requires((permission) -> permission.hasPermissionLevel(4))
-                                            .then(
-                                                    CommandManager.literal("history")
-                                                            .then(
-                                                                    CommandManager.argument("amount", IntegerArgumentType.integer(1))
-                                                                            .executes(e -> {
-                                                                                int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                                                return DiamondEconomyCommands.historyCommand(e, amount);
-                                                                            })
-                                                            )
-                                                            .executes(e -> DiamondEconomyCommands.historyCommand(e, 1))
-                                            )
-                            )
-            );
-        }
-
         if (DiamondEconomyConfig.getInstance().withdrawCommand) {
             dispatcher.register(
                     CommandManager.literal(DiamondEconomyConfig.getInstance().commandName)
@@ -159,7 +124,7 @@ public class DiamondEconomyCommands {
                                                     CommandManager.argument("amount", IntegerArgumentType.integer(1))
                                                             .executes(e -> {
                                                                 int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                                return DiamondEconomyCommands.withdrawCommand(e, amount, null);
+                                                                return DiamondEconomyCommands.withdrawCommand(e, amount, DiamondEconomyConfig.getCurrency(0));
                                                             })
                                             )
                             )
@@ -167,25 +132,22 @@ public class DiamondEconomyCommands {
         }
     }
 
-    public static int withdrawCommand(CommandContext<ServerCommandSource> ctx, int amount, @Nullable Item item) throws CommandSyntaxException {
+    public static int withdrawCommand(CommandContext<ServerCommandSource> ctx, int amount, Item item) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         DatabaseManager dm = DiamondEconomy.getDatabaseManager();
         String uuid = player.getUuidAsString();
 
         if (dm.changeBalance(uuid, -amount)) {
-            //todo
-            DiamondEconomy.dropItem(DiamondEconomyConfig.getCurrency(0), amount, player);
-            //todo
-            ctx.getSource().sendFeedback(new LiteralText("Withdrew " + amount + " " + DiamondEconomyConfig.getCurrencyName(0)), false);
+            DiamondEconomy.dropItem(item, amount, player);
+            ctx.getSource().sendFeedback(new LiteralText("Withdrew $" + amount), false);
             return 1;
         }
 
-        //todo
-        ctx.getSource().sendFeedback(new LiteralText("You have less than " + amount + " " + DiamondEconomyConfig.getCurrencyName(0)), false);
+        ctx.getSource().sendFeedback(new LiteralText("You have less than $" + amount), false);
         return 1;
     }
 
-    public static int depositCommand(CommandContext<ServerCommandSource> ctx, int amount, @Nullable Item item) throws CommandSyntaxException {
+    public static int depositCommand(CommandContext<ServerCommandSource> ctx, int amount, Item item) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         DatabaseManager dm = DiamondEconomy.getDatabaseManager();
         int currencyCount = 0;
@@ -193,8 +155,7 @@ public class DiamondEconomyCommands {
         int newValue = bal + amount;
         if (newValue < Integer.MAX_VALUE && newValue >= 0) {
             for (int i = 0; i < player.getInventory().size(); i++) {
-                //todo
-                if (player.getInventory().getStack(i).getItem().equals(DiamondEconomyConfig.getCurrency(0))) {
+                if (player.getInventory().getStack(i).getItem().equals(item)) {
                     currencyCount += player.getInventory().getStack(i).getCount();
                     player.getInventory().setStack(i, new ItemStack(Items.AIR));
                 }
@@ -204,25 +165,20 @@ public class DiamondEconomyCommands {
                 newValue = bal + currencyCount;
                 if (newValue < Integer.MAX_VALUE && newValue > 0) {
                     dm.setBalance(player.getUuidAsString(), currencyCount + bal);
-                    //todo
-                    ctx.getSource().sendFeedback(new LiteralText("Added " + currencyCount + " " + DiamondEconomyConfig.getCurrencyName(0) + " to your account"), false);
+                    ctx.getSource().sendFeedback(new LiteralText("Added " + currencyCount + " " + item.getName().asString() + " to your account"), false);
                     return 1;
                 }
-                //todo
-                DiamondEconomy.dropItem(DiamondEconomyConfig.getCurrency(0), currencyCount, player);
+                DiamondEconomy.dropItem(item, currencyCount, player);
                 ctx.getSource().sendFeedback(new LiteralText("You do not have enough room in your account"), false);
                 return 1;
             }
 
             if (amount > currencyCount) {
-                //todo
-                DiamondEconomy.dropItem(DiamondEconomyConfig.getCurrency(0), currencyCount, player);
-                //todo
-                ctx.getSource().sendFeedback(new LiteralText("You do not have enough " + DiamondEconomyConfig.getCurrencyName(0) + " in your inventory"), false);
+                DiamondEconomy.dropItem(item, currencyCount, player);
+                ctx.getSource().sendFeedback(new LiteralText("You do not have enough " + item.getName().asString() + " in your inventory"), false);
                 return 1;
             }
-            //todo
-            DiamondEconomy.dropItem(DiamondEconomyConfig.getCurrency(0), currencyCount - amount, player);
+            DiamondEconomy.dropItem(item, currencyCount - amount, player);
             dm.setBalance(player.getUuidAsString(), amount + bal);
             ctx.getSource().sendFeedback(new LiteralText("Added " + amount + " money to your account"), false);
             return 1;
@@ -232,56 +188,15 @@ public class DiamondEconomyCommands {
         return 1;
     }
 
-    public static int takeCommand(CommandContext<ServerCommandSource> ctx, Collection<ServerPlayerEntity> players, int amount) {
+    public static int modifyCommand(CommandContext<ServerCommandSource> ctx, Collection<ServerPlayerEntity> players, int amount) {
         DatabaseManager dm = DiamondEconomy.getDatabaseManager();
-        String executerUUID;
-        try {
-            executerUUID = ctx.getSource().getPlayer().getUuidAsString();
-        } catch (CommandSyntaxException e) {
-            executerUUID = "@";
-        }
+        String executerUUID = DiamondEconomy.getExecuterUUID(ctx);
 
-        String finalExecuterUUID = executerUUID;
         players.forEach(player -> {
-            int bal = dm.getBalanceFromUUID(player.getUuidAsString());
-            if (amount > bal) {
-                if (DiamondEconomyConfig.getInstance().transactionHistory) {
-                    dm.createTransaction("take", finalExecuterUUID, player.getUuidAsString(), bal, bal);
-                }
-                dm.setBalance(player.getUuidAsString(), 0);
+            if (dm.changeBalance(player.getUuidAsString, amount)) {
+                ctx.getSource().sendFeedback(new LiteralText("Modified " + players.size() + " players money by $" + amount), true);
             } else {
-                if (DiamondEconomyConfig.getInstance().transactionHistory) {
-                    dm.createTransaction("take", finalExecuterUUID, player.getUuidAsString(), amount, bal);
-                }
-                dm.setBalance(player.getUuidAsString(), dm.getBalanceFromUUID(player.getUuidAsString()) - amount);
-            }
-        });
-
-        ctx.getSource().sendFeedback(new LiteralText("Took " + Math.abs(amount) + " money from " + players.size() + " players"), true);
-        return players.size();
-    }
-
-    public static int giveCommand(CommandContext<ServerCommandSource> ctx, Collection<ServerPlayerEntity> players, int amount) {
-        DatabaseManager dm = DiamondEconomy.getDatabaseManager();
-        String executerUUID;
-        try {
-            executerUUID = ctx.getSource().getPlayer().getUuidAsString();
-        } catch (CommandSyntaxException e) {
-            executerUUID = "@";
-        }
-
-        String finalExecuterUUID = executerUUID;
-        players.forEach(player -> {
-            int bal = dm.getBalanceFromUUID(player.getUuidAsString());
-            int newValue = bal + amount;
-            if (newValue < Integer.MAX_VALUE && newValue > 0) {
-                if (DiamondEconomyConfig.getInstance().transactionHistory) {
-                    dm.createTransaction("give", finalExecuterUUID, player.getUuidAsString(), amount, bal);
-                }
-                dm.setBalance(player.getUuidAsString(), newValue);
-                ctx.getSource().sendFeedback(new LiteralText("Gave " + players.size() + " players " + amount + " money"), true);
-            } else {
-                ctx.getSource().sendFeedback(new LiteralText("That would go over the max value for " + player.getName().asString()), true);
+                ctx.getSource().sendFeedback(new LiteralText("That would go out of the valid money range for " + player.getName().asString()), true);
             }
         });
         return players.size();
@@ -289,18 +204,9 @@ public class DiamondEconomyCommands {
 
     public static int setCommand(CommandContext<ServerCommandSource> ctx, Collection<ServerPlayerEntity> players, int amount) {
         DatabaseManager dm = DiamondEconomy.getDatabaseManager();
-        String executerUUID;
-        try {
-            executerUUID = ctx.getSource().getPlayer().getUuidAsString();
-        } catch (CommandSyntaxException e) {
-            executerUUID = "@";
-        }
+        String executerUUID = DiamondEconomy.getExecuterUUID(ctx);
 
-        String finalExecuterUUID = executerUUID;
         players.forEach(player -> {
-            if (DiamondEconomyConfig.getInstance().transactionHistory) {
-                dm.createTransaction("set", finalExecuterUUID, player.getUuidAsString(), amount, dm.getBalanceFromUUID(player.getUuidAsString()));
-            }
             dm.setBalance(player.getUuidAsString(), amount);
         });
 
@@ -313,7 +219,7 @@ public class DiamondEconomyCommands {
         if (player == null) player = ctx.getSource().getPlayer().getName().asString();
         int bal = dm.getBalanceFromName(player);
         if (bal > -1) {
-            ctx.getSource().sendFeedback(new LiteralText(player + " has " + bal + " money"), false);
+            ctx.getSource().sendFeedback(new LiteralText(player + " has $" + bal), false);
             return 1;
         }
         ctx.getSource().sendFeedback(new LiteralText("No account was found for player with the name \"" + player + "\""), false);
@@ -322,14 +228,7 @@ public class DiamondEconomyCommands {
 
     public static int topCommand(CommandContext<ServerCommandSource> ctx, int topAmount) throws CommandSyntaxException {
         DatabaseManager dm = DiamondEconomy.getDatabaseManager();
-        ServerPlayerEntity player1 = ctx.getSource().getPlayer();
-        ctx.getSource().sendFeedback(new LiteralText(dm.top(player1.getUuidAsString(), topAmount)), false);
-        return 1;
-    }
-
-    public static int historyCommand(CommandContext<ServerCommandSource> ctx, int page) {
-        DatabaseManager dm = DiamondEconomy.getDatabaseManager();
-        ctx.getSource().sendFeedback(new LiteralText(dm.history(page)), false);
+        ctx.getSource().sendFeedback(new LiteralText(dm.top(ctx.getSource().getPlayer().getUuidAsString(), topAmount)), false);
         return 1;
     }
 
@@ -343,14 +242,11 @@ public class DiamondEconomyCommands {
         if (!player.getUuidAsString().equals(player1.getUuidAsString())) {
             if (bal >= amount) {
                 if (newValue < Integer.MAX_VALUE && newValue > 0) {
-                    if (DiamondEconomyConfig.getInstance().transactionHistory) {
-                        dm.createTransaction("send", player1.getUuidAsString(), player.getUuidAsString(), amount, -1);
-                    }
                     dm.setBalance(player.getUuidAsString(), newValue);
                     dm.setBalance(player1.getUuidAsString(), bal - amount);
 
-                    player.sendMessage(new LiteralText("You received " + amount + " money from " + player1.getName().asString()), false);
-                    ctx.getSource().sendFeedback(new LiteralText("Sent " + amount + " money to " + player.getName().asString()), false);
+                    player.sendMessage(new LiteralText("You received $" + amount + " from " + player1.getName().asString()), false);
+                    ctx.getSource().sendFeedback(new LiteralText("Sent $" + amount + " to " + player.getName().asString()), false);
                 } else {
                     ctx.getSource().sendFeedback(new LiteralText("Failed because that would go over the max value"), false);
                 }
