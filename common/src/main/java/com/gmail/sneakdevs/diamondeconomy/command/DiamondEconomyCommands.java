@@ -29,10 +29,10 @@ public class DiamondEconomyCommands {
                         .then(
                                 CommandManager.literal("top")
                                         .then(
-                                                CommandManager.argument("amount", IntegerArgumentType.integer(1, 20))
+                                                CommandManager.argument("page", IntegerArgumentType.integer(1))
                                                         .executes(e -> {
-                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                            return DiamondEconomyCommands.topCommand(e, amount);
+                                                            int page = IntegerArgumentType.getInteger(e, "page");
+                                                            return DiamondEconomyCommands.topCommand(e, page);
                                                         })
                                         )
                                         .executes(e -> DiamondEconomyCommands.topCommand(e, 5))
@@ -120,7 +120,7 @@ public class DiamondEconomyCommands {
                     CommandManager.literal(DiamondEconomyConfig.getInstance().commandName)
                             .then(
                                     CommandManager.literal("withdraw")
-                                            .then(
+                                                .then(
                                                     CommandManager.argument("amount", IntegerArgumentType.integer(1))
                                                             .executes(e -> {
                                                                 int amount = IntegerArgumentType.getInteger(e, "amount");
@@ -226,9 +226,9 @@ public class DiamondEconomyCommands {
         return 1;
     }
 
-    public static int topCommand(CommandContext<ServerCommandSource> ctx, int topAmount) throws CommandSyntaxException {
+    public static int topCommand(CommandContext<ServerCommandSource> ctx, int page) throws CommandSyntaxException {
         DatabaseManager dm = DiamondEconomy.getDatabaseManager();
-        ctx.getSource().sendFeedback(new LiteralText(dm.top(ctx.getSource().getPlayer().getUuidAsString(), topAmount)), false);
+        ctx.getSource().sendFeedback(new LiteralText(dm.top(ctx.getSource().getPlayer().getUuidAsString(), page)), false);
         return 1;
     }
 
