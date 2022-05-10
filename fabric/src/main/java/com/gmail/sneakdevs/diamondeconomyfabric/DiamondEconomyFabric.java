@@ -1,7 +1,7 @@
 package com.gmail.sneakdevs.diamondeconomyfabric;
 
-import com.gmail.sneakdevs.diamondeconomy.command.DiamondEconomyCommands;
 import com.gmail.sneakdevs.diamondeconomy.DiamondEconomy;
+import com.gmail.sneakdevs.diamondeconomy.command.DiamondEconomyCommands;
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import com.gmail.sneakdevs.diamondeconomy.sql.SQLiteDatabaseManager;
 import me.shedaniel.autoconfig.AutoConfig;

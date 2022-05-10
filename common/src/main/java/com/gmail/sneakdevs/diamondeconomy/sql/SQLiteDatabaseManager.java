@@ -2,12 +2,10 @@ package com.gmail.sneakdevs.diamondeconomy.sql;
 
 import java.io.File;
 import java.sql.*;
-import java.text.SimpleDateFormat;
 
 public class SQLiteDatabaseManager implements DatabaseManager {
     public static String url;
 
-    @SuppressWarnings("all")
     public static void createNewDatabase(File file) {
         url = "jdbc:sqlite:" + file.getPath().replace('\\', '/');
 
@@ -215,7 +213,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
                 }
             }
             if (i < 10) {
-                history.append("\n").append("---End---");
+                rankings.concat("\n ---End---");
             }
         } catch (SQLException e) {
             e.printStackTrace();
