@@ -106,9 +106,9 @@ public class DiamondEconomyCommands {
                             .then(
                                     CommandManager.literal("withdraw")
                                                 .then(
-                                                    CommandManager.argument("maxAmount", IntegerArgumentType.integer(1))
+                                                    CommandManager.argument("amount", IntegerArgumentType.integer(1))
                                                             .executes(e -> {
-                                                                int amount = IntegerArgumentType.getInteger(e, "maxAmount");
+                                                                int amount = IntegerArgumentType.getInteger(e, "amount");
                                                                 return DiamondEconomyCommands.withdrawCommand(e, amount);
                                                             })
                                             )
