@@ -9,7 +9,7 @@ architectury {
 
 loom {
     forge {
-        mixinConfig "netheritebeacons.mixins.json"
+        mixinConfig "diamondeconomy.mixins.json"
     }
 }
 
@@ -47,7 +47,6 @@ shadowJar {
     configurations = [project.configurations.shadowCommon]
     classifier "dev-shadow"
 }
-assemble.dependsOn shadowJar
 
 remapJar {
     input.set shadowJar.archiveFile
