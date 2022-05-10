@@ -160,7 +160,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         String sql = "UPDATE diamonds SET money = ? WHERE uuid = ?";
 
         try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            if (pstmt.getResultSet().getInt(money) + money >= 0 && pstmt.getResultSet().getInt(money) + money < Integer.MAX_VALUE) {
+            if (money >= 0 && money < Integer.MAX_VALUE) {
                 pstmt.setInt(1, money);
                 pstmt.setString(2, uuid);
                 pstmt.executeUpdate();
@@ -176,7 +176,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         String sql = "UPDATE diamonds SET money = ? WHERE uuid = ?";
 
         try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            int bal = pstmt.getResultSet().getInt(money);
+            int bal = getBalanceFromUUID(uuid);
             if (bal + money >= 0 && bal + money < Integer.MAX_VALUE) {
                 pstmt.setInt(1, bal + money);
                 pstmt.setString(2, uuid);
@@ -200,20 +200,18 @@ public class SQLiteDatabaseManager implements DatabaseManager {
              Statement stmt  = conn.createStatement();
              ResultSet rs    = stmt.executeQuery(sql)){
 
-            // loop through the result set
-            while (rs.next() && (i < 10 || playerRank == 0)) {
+            while (rs.next()) {
                 if (repeats / 10 + 1 == page) {
-                    rankings.concat(rs.getRow() + ") " + rs.getString("name") + "  " + rs.getInt("money") + "\n");
+                    rankings = rankings.concat(rs.getRow() + ") " + rs.getString("name") + ": " + rs.getInt("money") + "\n");
                     i++;
                 }
                 repeats++;
-                i++;
                 if (uuid.equals(rs.getString("uuid"))) {
-                    playerRank = i;
+                    playerRank = repeats;
                 }
             }
             if (i < 10) {
-                rankings.concat("\n ---End---");
+                rankings = rankings.concat("---End--- \n");
             }
         } catch (SQLException e) {
             e.printStackTrace();
