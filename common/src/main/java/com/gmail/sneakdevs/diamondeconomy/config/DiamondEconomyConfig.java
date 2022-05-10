@@ -31,6 +31,10 @@ public class DiamondEconomyConfig implements ConfigData {
         return Registry.ITEM.get(Identifier.tryParse(DiamondEconomyConfig.getInstance().currencies[num]));
     }
 
+    public static String getCurrencyName(int num) {
+        return Registry.ITEM.get(Identifier.tryParse(DiamondEconomyConfig.getInstance().currencies[num])).getName().getString();
+    }
+
     public static int[] getCurrencyValues() {
         return DiamondEconomyConfig.getInstance().currencyValues;
     }
