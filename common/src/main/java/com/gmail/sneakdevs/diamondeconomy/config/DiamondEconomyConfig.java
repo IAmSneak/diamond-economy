@@ -18,7 +18,7 @@ public class DiamondEconomyConfig implements ConfigData {
     @Comment("List of items used as currency")
     public String[] currencies = {"minecraft:diamond","minecraft:diamond_block"};
 
-    @Comment("Values of each currency in the same order, decimals not allowed (must have unique values and be in ascending order)")
+    @Comment("Values of each currency in the same order, decimals not allowed (must be in ascending order)")
     public int[] currencyValues = {1,9};
 
     @Comment("Enable/disable the withdraw command (default: true)")

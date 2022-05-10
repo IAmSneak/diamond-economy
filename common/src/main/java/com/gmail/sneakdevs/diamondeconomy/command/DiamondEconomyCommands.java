@@ -31,7 +31,7 @@ public class DiamondEconomyCommands {
                                                             return DiamondEconomyCommands.topCommand(e, page);
                                                         })
                                         )
-                                        .executes(e -> DiamondEconomyCommands.topCommand(e, 5))
+                                        .executes(e -> DiamondEconomyCommands.topCommand(e, 1))
                         )
                         .then(
                                 CommandManager.literal("balance")
@@ -71,38 +71,35 @@ public class DiamondEconomyCommands {
                                         )
                         )
                         .then(
-                                CommandManager.literal("admin")
+                                CommandManager.literal("modify")
                                         .requires((permission) -> permission.hasPermissionLevel(4))
                                         .then(
-                                                CommandManager.literal("modify")
-                                                        .requires((permission) -> permission.hasPermissionLevel(4))
+                                                CommandManager.argument("players", EntityArgumentType.players())
                                                         .then(
-                                                                CommandManager.argument("players", EntityArgumentType.players())
-                                                                        .then(
-                                                                                CommandManager.argument("amount", IntegerArgumentType.integer())
-                                                                                        .executes(e -> {
-                                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                                                            return DiamondEconomyCommands.modifyCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
-                                                                                        })
-                                                                        )
+                                                                CommandManager.argument("amount", IntegerArgumentType.integer())
+                                                                        .executes(e -> {
+                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
+                                                                            return DiamondEconomyCommands.modifyCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
+                                                                        })
                                                         )
                                         )
+                        )
+                        .then(
+                                CommandManager.literal("set")
+                                        .requires((permission) -> permission.hasPermissionLevel(4))
                                         .then(
-                                                CommandManager.literal("set")
-                                                        .requires((permission) -> permission.hasPermissionLevel(4))
+                                                CommandManager.argument("players", EntityArgumentType.players())
                                                         .then(
-                                                                CommandManager.argument("players", EntityArgumentType.players())
-                                                                        .then(
-                                                                                CommandManager.argument("amount", IntegerArgumentType.integer(0))
-                                                                                        .executes(e -> {
-                                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                                                            return DiamondEconomyCommands.setCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
-                                                                                        })
-                                                                        )
+                                                                CommandManager.argument("amount", IntegerArgumentType.integer(0))
+                                                                        .executes(e -> {
+                                                                            int amount = IntegerArgumentType.getInteger(e, "amount");
+                                                                            return DiamondEconomyCommands.setCommand(e, EntityArgumentType.getPlayers(e, "players").stream().toList(), amount);
+                                                                        })
                                                         )
                                         )
                         )
         );
+
         if (DiamondEconomyConfig.getInstance().withdrawCommand) {
             dispatcher.register(
                     CommandManager.literal(DiamondEconomyConfig.getInstance().commandName)
