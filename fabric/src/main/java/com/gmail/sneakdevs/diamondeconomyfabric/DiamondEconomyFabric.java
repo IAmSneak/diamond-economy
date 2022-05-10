@@ -14,7 +14,8 @@ import net.minecraft.util.WorldSavePath;
 
 public class DiamondEconomyFabric implements ModInitializer {
     private static void serverStarting(MinecraftServer server){
-        SQLiteDatabaseManager.createNewDatabase(server.getSavePath(WorldSavePath.ROOT).resolve(DiamondEconomy.MODID + ".sqlite").toFile());
+        AutoConfig.setPath(event.getServer().getSavePath(WorldSavePath.ROOT).resolve(DiamondEconomy.MODID + ".sqlite").toFile())
+        SQLiteDatabaseManager.createNewDatabase(DiamondEconomyConfig.getInstance().filePath.toFile());
     }
 
     @Override
