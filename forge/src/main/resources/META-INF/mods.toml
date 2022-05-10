@@ -27,9 +27,9 @@ versionRange = "[1.18.2,)"
 ordering = "NONE"
 side = "BOTH"
 
-#[[dependencies.diamondeconomy]]
-#modId = "cloth-config2"
-#mandatory = true
-#versionRange = "[6.2.57,)"
-#ordering = "NONE"
-#side = "BOTH"
+[[dependencies.diamondeconomy]]
+modId = "cloth_config"
+mandatory = true
+versionRange = "[6.2.57,)"
+ordering = "NONE"
+side = "BOTH"
