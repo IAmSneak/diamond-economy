@@ -11,7 +11,6 @@ import net.minecraft.util.registry.Registry;
 
 @Config(name = DiamondEconomy.MODID)
 public class DiamondEconomyConfig implements ConfigData {
-    private static String path;
 
     @Comment("Name of the base command (default: \"diamonds\")")
     public String commandName = "diamonds";
@@ -25,8 +24,8 @@ public class DiamondEconomyConfig implements ConfigData {
     @Comment("Enable/disable the withdraw command (default: true)")
     public boolean withdrawCommand = true;
 
-    @Comment("Where the diamondeconomy.sqlite file is located")
-    public String filePath = ;
+    @Comment("Where the diamondeconomy.sqlite file is located (ex: \"C:/Users/example/Desktop/server/diamondeconomy.sqlite\")")
+    public String fileLocation = null;
 
     public static Item getCurrency(int num) {
         return Registry.ITEM.get(Identifier.tryParse(DiamondEconomyConfig.getInstance().currencies[num]));
@@ -34,10 +33,6 @@ public class DiamondEconomyConfig implements ConfigData {
 
     public static int[] getCurrencyValues() {
         return DiamondEconomyConfig.getInstance().currencyValues;
-    }
-    
-    public static void setPath(String file) {
-        path = file;
     }
 
     public static DiamondEconomyConfig getInstance() {

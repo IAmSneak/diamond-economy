@@ -6,9 +6,10 @@ import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import net.minecraft.util.WorldSavePath;
 import net.minecraftforge.event.server.ServerStartingEvent;
 
+import java.io.File;
+
 public class StartEventHandler_DiamondEconomy {
     public static void diamondeconomy_onServerStartingEvent(ServerStartingEvent event) {
-        AutoConfig.setPath(event.getServer().getSavePath(WorldSavePath.ROOT).resolve(DiamondEconomy.MODID + ".sqlite"))
-        SQLiteDatabaseManager.createNewDatabase(DiamondEconomyConfig.getInstance().filePath.toFile());
+        SQLiteDatabaseManager.createNewDatabase((DiamondEconomyConfig.getInstance().fileLocation != null) ? (new File(DiamondEconomyConfig.getInstance().fileLocation)) : event.getServer().getSavePath(WorldSavePath.ROOT).resolve(DiamondEconomy.MODID + ".sqlite").toFile());
     }
 }
