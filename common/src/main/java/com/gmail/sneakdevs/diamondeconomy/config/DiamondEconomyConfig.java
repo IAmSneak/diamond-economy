@@ -12,20 +12,28 @@ import net.minecraft.util.registry.Registry;
 @Config(name = DiamondEconomy.MODID)
 public class DiamondEconomyConfig implements ConfigData {
 
-    @Comment("Name of the base command (default: \"diamonds\")")
-    public String commandName = "diamonds";
-
     @Comment("List of items used as currency")
     public String[] currencies = {"minecraft:diamond","minecraft:diamond_block"};
 
     @Comment("Values of each currency in the same order, decimals not allowed (must be in ascending order)")
     public int[] currencyValues = {1,9};
 
-    @Comment("Enable/disable the withdraw command (default: true)")
-    public boolean withdrawCommand = true;
-
     @Comment("Where the diamondeconomy.sqlite file is located (ex: \"C:/Users/example/Desktop/server/diamondeconomy.sqlite\")")
     public String fileLocation = null;
+
+    @Comment("Name of the base command (null to disable base command)")
+    public String commandName = "diamonds";
+
+    @Comment("Names of the subcommands (null to disable command)")
+    public String topCommandName = "top";
+    public String balanceCommandName = "balance";
+    public String depositCommandName = "deposit";
+    public String sendCommandName = "send";
+    public String withdrawCommandName = "withdraw";
+
+    @Comment("Names of the admin subcommands (null to disable command)")
+    public String setCommandName = "set";
+    public String modifyCommandName = "modify";
 
     public static Item getCurrency(int num) {
         return Registry.ITEM.get(Identifier.tryParse(DiamondEconomyConfig.getInstance().currencies[num]));
