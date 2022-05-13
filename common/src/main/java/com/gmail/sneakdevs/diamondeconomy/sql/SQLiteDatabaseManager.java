@@ -202,7 +202,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
 
             while (rs.next()) {
                 if (repeats / 10 + 1 == page) {
-                    rankings = rankings.concat(rs.getRow() + ") " + rs.getString("name") + ": " + rs.getInt("money") + "\n");
+                    rankings = rankings.concat(rs.getRow() + ") " + rs.getString("name") + ": $" + rs.getInt("money") + "\n");
                     i++;
                 }
                 repeats++;
