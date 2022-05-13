@@ -10,6 +10,6 @@ import java.io.File;
 
 public class StartEventHandler_DiamondEconomy {
     public static void diamondeconomy_onServerStartingEvent(ServerStartingEvent event) {
-        SQLiteDatabaseManager.createNewDatabase((DiamondEconomyConfig.getInstance().fileLocation != null) ? (new File(DiamondEconomyConfig.getInstance().fileLocation)) : event.getServer().getSavePath(WorldSavePath.ROOT).resolve(DiamondEconomy.MODID + ".sqlite").toFile());
+        SQLiteDatabaseManager.createNewDatabase((DiamondEconomyConfig.getInstance().fileLocation != null) ? (new File(DiamondEconomyConfig.getInstance().fileLocation)) : event.getServer().getWorldPath(WorldSavePath.ROOT).resolve(DiamondEconomy.MODID + ".sqlite").toFile());
     }
 }

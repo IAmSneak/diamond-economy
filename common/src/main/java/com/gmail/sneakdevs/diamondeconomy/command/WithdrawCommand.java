@@ -1,25 +1,21 @@
 package com.gmail.sneakdevs.diamondeconomy.command;
 
 import com.gmail.sneakdevs.diamondeconomy.DiamondEconomy;
-import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import com.gmail.sneakdevs.diamondeconomy.sql.DatabaseManager;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.LiteralText;
-
-import java.util.Collection;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.level.ServerPlayer;
 
 public class WithdrawCommand {
-    public static LiteralArgumentBuilder<ServerCommandSource> buildCommand(){
-        return CommandManager.literal("withdraw")
+    public static LiteralArgumentBuilder<CommandSourceStack> buildCommand(){
+        return Commands.literal("withdraw")
                 .then(
-                        CommandManager.argument("amount", IntegerArgumentType.integer(1))
+                        Commands.argument("amount", IntegerArgumentType.integer(1))
                                 .executes(e -> {
                                     int amount = IntegerArgumentType.getInteger(e, "amount");
                                     return withdrawCommand(e, amount);
@@ -27,13 +23,13 @@ public class WithdrawCommand {
                 );
     }
 
-    public static int withdrawCommand(CommandContext<ServerCommandSource> ctx, int amount) throws CommandSyntaxException {
-        ServerPlayerEntity player = ctx.getSource().getPlayer();
+    public static int withdrawCommand(CommandContext<CommandSourceStack> ctx, int amount) throws CommandSyntaxException {
+        ServerPlayer player = ctx.getSource().getPlayerOrException();
         DatabaseManager dm = DiamondEconomy.getDatabaseManager();
-        if (dm.changeBalance(player.getUuidAsString(), -amount)) {
-            ctx.getSource().sendFeedback(new LiteralText("Withdrew $" + (amount - DiamondEconomy.dropItem(amount, player))), false);
+        if (dm.changeBalance(player.getStringUUID(), -amount)) {
+            ctx.getSource().sendSuccess(new TextComponent("Withdrew $" + (amount - DiamondEconomy.dropItem(amount, player))), false);
         } else {
-            ctx.getSource().sendFeedback(new LiteralText("You have less than $" + amount), false);
+            ctx.getSource().sendSuccess(new TextComponent("You have less than $" + amount), false);
         }
         return 1;
     }
