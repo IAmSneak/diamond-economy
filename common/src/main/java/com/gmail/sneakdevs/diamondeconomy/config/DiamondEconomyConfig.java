@@ -6,6 +6,7 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
 @Config(name = DiamondEconomy.MODID)
@@ -17,7 +18,7 @@ public class DiamondEconomyConfig implements ConfigData {
     @Comment("Values of each currency in the same order, decimals not allowed (must be in ascending order)")
     public int[] currencyValues = {1,9};
 
-    @Comment("Where the diamondeconomy.sqlite file is located (ex: \"C:/Users/example/Desktop/server/diamondeconomy.sqlite\")")
+    @Comment("Where the diamondeconomy.sqlite file is located (ex: \"C:/Users/example/Desktop/server/world/diamondeconomy.sqlite\")")
     public String fileLocation = null;
 
     @Comment("Name of the base command (null to disable base command)")
@@ -35,11 +36,11 @@ public class DiamondEconomyConfig implements ConfigData {
     public String modifyCommandName = "modify";
 
     public static Item getCurrency(int num) {
-        return Registry.ITEM.get(Identifier.tryParse(DiamondEconomyConfig.getInstance().currencies[num]));
+        return Registry.ITEM.get(ResourceLocation.tryParse(DiamondEconomyConfig.getInstance().currencies[num]));
     }
 
     public static String getCurrencyName(int num) {
-        return Registry.ITEM.get(Identifier.tryParse(DiamondEconomyConfig.getInstance().currencies[num])).getName().getString();
+        return Registry.ITEM.get(ResourceLocation.tryParse(DiamondEconomyConfig.getInstance().currencies[num])).getDescription().getString();
     }
 
     public static int[] getCurrencyValues() {
