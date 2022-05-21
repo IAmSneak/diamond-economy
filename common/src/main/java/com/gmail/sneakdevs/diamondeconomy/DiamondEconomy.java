@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class DiamondEconomy {
     public static final String MODID = "diamondeconomy";
-    public static ArrayList<String> tableRegistry;
+    public static ArrayList<String> tableRegistry = new ArrayList<>();
 
     public static DatabaseManager getDatabaseManager() {
         return new SQLiteDatabaseManager();
@@ -27,7 +27,7 @@ public class DiamondEconomy {
     }
 
     public static void initServer(MinecraftServer server) {
-        tableRegistry.add("CREATE TABLE IF NOT EXISTS diamonds (uuid text PRIMARY KEY, name text NOT NULL, money integer DEFAULT 0);");
+        registerTable("CREATE TABLE IF NOT EXISTS diamonds (uuid text PRIMARY KEY, name text NOT NULL, money integer DEFAULT 0);");
         SQLiteDatabaseManager.createNewDatabase((DiamondEconomyConfig.getInstance().fileLocation != null) ? (new File(DiamondEconomyConfig.getInstance().fileLocation)) : server.getWorldPath(LevelResource.ROOT).resolve(DiamondEconomy.MODID + ".sqlite").toFile());
     }
 
