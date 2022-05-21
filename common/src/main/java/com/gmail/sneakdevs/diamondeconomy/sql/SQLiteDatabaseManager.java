@@ -1,5 +1,7 @@
 package com.gmail.sneakdevs.diamondeconomy.sql;
 
+import com.gmail.sneakdevs.diamondeconomy.DiamondEconomy;
+
 import java.io.File;
 import java.sql.*;
 
@@ -30,27 +32,9 @@ public class SQLiteDatabaseManager implements DatabaseManager {
     }
 
     private static void createNewTable() {
-        // SQL statement for creating a new table
-        String sql = "CREATE TABLE IF NOT EXISTS diamonds (uuid text PRIMARY KEY, name text NOT NULL, money integer DEFAULT 0);";
-
         try (Connection conn = DriverManager.getConnection(url); Statement stmt = conn.createStatement()) {
-            stmt.execute(sql);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void createTransaction(String type, String executerUUID, String victimUUID, int amount, int oldVal) {
-        String sql = "INSERT INTO transactions(time,type,executer,victim,amount,oldval) VALUES(?,?,?,?,?,?)";
-
-        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)){
-            pstmt.setLong(1, System.currentTimeMillis());
-            pstmt.setString(2, type);
-            pstmt.setString(3, executerUUID);
-            pstmt.setString(4, victimUUID);
-            pstmt.setInt(5, amount);
-            pstmt.setInt(6, oldVal);
-            pstmt.executeUpdate();
+            for (String query : DiamondEconomy.tableRegistry)
+            stmt.execute(query);
         } catch (SQLException e) {
             e.printStackTrace();
         }

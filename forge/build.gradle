@@ -23,7 +23,6 @@ configurations {
 
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
-    modApi "me.shedaniel.cloth:cloth-config-forge:${rootProject.cloth_config_version}"
 
     shadowCommon('org.xerial:sqlite-jdbc:3.36.0.3')
     common('org.xerial:sqlite-jdbc:3.36.0.3')

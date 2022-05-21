@@ -3,20 +3,16 @@ package com.gmail.sneakdevs.diamondeconomyfabric;
 import com.gmail.sneakdevs.diamondeconomy.DiamondEconomy;
 import com.gmail.sneakdevs.diamondeconomy.command.DiamondEconomyCommands;
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
-import com.gmail.sneakdevs.diamondeconomy.sql.SQLiteDatabaseManager;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.level.storage.LevelResource;
-
-import java.io.File;
 
 public class DiamondEconomyFabric implements ModInitializer {
     private static void serverStarting(MinecraftServer server){
-        SQLiteDatabaseManager.createNewDatabase((DiamondEconomyConfig.getInstance().fileLocation != null) ? (new File(DiamondEconomyConfig.getInstance().fileLocation)) : server.getWorldPath(LevelResource.ROOT).resolve(DiamondEconomy.MODID + ".sqlite").toFile());
+        DiamondEconomy.initServer(server);
     }
 
     @Override

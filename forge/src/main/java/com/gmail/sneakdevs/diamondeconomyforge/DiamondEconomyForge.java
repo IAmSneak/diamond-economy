@@ -14,6 +14,6 @@ public class DiamondEconomyForge {
     public DiamondEconomyForge() {
         MinecraftForge.EVENT_BUS.addListener(StartEventHandler_DiamondEconomy::diamondeconomy_onServerStartingEvent);
         MinecraftForge.EVENT_BUS.addListener(RegisterCommandEventHandler_DiamondEconomy::diamondeconomy_registerCommandsEvent);
-        AutoConfig.register(DiamondEconomyConfig.class, JanksonConfigSerializer::new);
+        DiamondEconomy.init();
     }
 }
