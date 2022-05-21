@@ -21,7 +21,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         createNewTable();
     }
 
-    private Connection connect() {
+    public Connection connect() {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(url);
