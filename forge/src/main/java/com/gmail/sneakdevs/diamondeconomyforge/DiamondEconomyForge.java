@@ -1,11 +1,8 @@
 package com.gmail.sneakdevs.diamondeconomyforge;
 
 import com.gmail.sneakdevs.diamondeconomy.DiamondEconomy;
-import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import com.gmail.sneakdevs.diamondeconomyforge.events.RegisterCommandEventHandler_DiamondEconomy;
 import com.gmail.sneakdevs.diamondeconomyforge.events.StartEventHandler_DiamondEconomy;
-import me.shedaniel.autoconfig.AutoConfig;
-import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 
