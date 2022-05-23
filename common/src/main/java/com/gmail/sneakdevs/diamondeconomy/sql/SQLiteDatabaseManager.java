@@ -33,8 +33,9 @@ public class SQLiteDatabaseManager implements DatabaseManager {
 
     private static void createNewTable() {
         try (Connection conn = DriverManager.getConnection(url); Statement stmt = conn.createStatement()) {
-            for (String query : DiamondEconomy.tableRegistry)
-            stmt.execute(query);
+            for (String query : DiamondEconomy.tableRegistry) {
+                stmt.execute(query);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -54,12 +55,9 @@ public class SQLiteDatabaseManager implements DatabaseManager {
     }
 
     public void updateName(String uuid, String name) {
-        String sql = "UPDATE diamonds SET name = ? "
-                + "WHERE uuid = ?";
+        String sql = "UPDATE diamonds SET name = ? WHERE uuid = ?";
 
-        try (Connection conn = this.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
+        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
             pstmt.setString(2, uuid);
             pstmt.executeUpdate();
@@ -69,13 +67,9 @@ public class SQLiteDatabaseManager implements DatabaseManager {
     }
 
     public void setName(String uuid, String name) {
-        String sql = "UPDATE diamonds SET name = ? "
-                + "WHERE uuid != ?"
-                + "AND name = ?";
+        String sql = "UPDATE diamonds SET name = ? WHERE uuid != ? AND name = ?";
 
-        try (Connection conn = this.connect();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
+        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, "a");
             pstmt.setString(2, uuid);
             pstmt.setString(3, name);
@@ -88,14 +82,9 @@ public class SQLiteDatabaseManager implements DatabaseManager {
     public int getBalanceFromUUID(String uuid){
         String sql = "SELECT uuid, money FROM diamonds WHERE uuid = '" + uuid + "'";
 
-        try (Connection conn = this.connect();
-             Statement stmt  = conn.createStatement();
-             ResultSet rs    = stmt.executeQuery(sql)){
-
-            // loop through the result set
-            while (rs.next()) {
-                return rs.getInt("money");
-            }
+        try (Connection conn = this.connect(); Statement stmt  = conn.createStatement(); ResultSet rs    = stmt.executeQuery(sql)){
+            rs.next()
+            return rs.getInt("money");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -105,14 +94,9 @@ public class SQLiteDatabaseManager implements DatabaseManager {
     public String getNameFromUUID(String uuid){
         String sql = "SELECT uuid, name FROM diamonds WHERE uuid = '" + uuid + "'";
 
-        try (Connection conn = this.connect();
-             Statement stmt  = conn.createStatement();
-             ResultSet rs    = stmt.executeQuery(sql)){
-
-            // loop through the result set
-            while (rs.next()) {
-                return rs.getString("name");
-            }
+        try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
+            rs.next()
+            return rs.getString("name");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -120,16 +104,11 @@ public class SQLiteDatabaseManager implements DatabaseManager {
     }
 
     public int getBalanceFromName(String name){
-        String sql = "SELECT name, money FROM diamonds";
+        String sql = "SELECT name, money FROM diamonds WHERE name = '" + name + "'";
 
         try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
-
-            // loop through the result set
-            while (rs.next()) {
-                if (rs.getString("name").equals(name)) {
-                    return rs.getInt("money");
-                }
-            }
+            rs.next()
+            return rs.getInt("money");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -176,10 +155,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         int playerRank = 0;
         int repeats = 0;
 
-        try (Connection conn = this.connect();
-             Statement stmt  = conn.createStatement();
-             ResultSet rs    = stmt.executeQuery(sql)){
-
+        try (Connection conn = this.connect(); Statement stmt  = conn.createStatement(); ResultSet rs    = stmt.executeQuery(sql)){
             while (rs.next() && (repeats < 10 || playerRank == 0)) {
                 if (repeats / 10 + 1 == page) {
                     rankings = rankings.concat(rs.getRow() + ") " + rs.getString("name") + ": $" + rs.getInt("money") + "\n");
