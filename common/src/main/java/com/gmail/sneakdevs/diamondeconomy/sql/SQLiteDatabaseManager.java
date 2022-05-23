@@ -86,7 +86,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
     }
 
     public int getBalanceFromUUID(String uuid){
-        String sql = "SELECT uuid, money FROM diamonds";
+        String sql = "SELECT uuid, money FROM diamonds WHERE uuid = '" + uuid + "'";
 
         try (Connection conn = this.connect();
              Statement stmt  = conn.createStatement();
@@ -94,9 +94,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
 
             // loop through the result set
             while (rs.next()) {
-                if (rs.getString("uuid").equals(uuid)) {
-                    return rs.getInt("money");
-                }
+                return rs.getInt("money");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -105,7 +103,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
     }
 
     public String getNameFromUUID(String uuid){
-        String sql = "SELECT uuid, name FROM diamonds";
+        String sql = "SELECT uuid, name FROM diamonds WHERE uuid = '" + uuid + "'";
 
         try (Connection conn = this.connect();
              Statement stmt  = conn.createStatement();
@@ -113,9 +111,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
 
             // loop through the result set
             while (rs.next()) {
-                if (rs.getString("uuid").equals(uuid)) {
-                    return rs.getString("name");
-                }
+                return rs.getString("name");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -184,7 +180,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
              Statement stmt  = conn.createStatement();
              ResultSet rs    = stmt.executeQuery(sql)){
 
-            while (rs.next()) {
+            while (rs.next() && (repeats < 10 || playerRank == 0)) {
                 if (repeats / 10 + 1 == page) {
                     rankings = rankings.concat(rs.getRow() + ") " + rs.getString("name") + ": $" + rs.getInt("money") + "\n");
                     i++;
