@@ -12,6 +12,7 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class SetCommand {
@@ -24,7 +25,7 @@ public class SetCommand {
                                         Commands.argument("amount", IntegerArgumentType.integer(0))
                                                 .executes(e -> {
                                                     int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                    return setCommand(e, EntityArgument.getPlayers(e, "players").stream().toList(), amount);
+                                                    return setCommand(e, new ArrayList<>(EntityArgument.getPlayers(e, "players")), amount);
                                                 }))
                 );
     }

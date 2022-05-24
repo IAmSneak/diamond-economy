@@ -24,10 +24,10 @@ public class DepositCommand {
         DatabaseManager dm = DiamondEconomy.getDatabaseManager();
         int currencyCount = 0;
         for (int i = DiamondEconomyConfig.getCurrencyValues().length - 1; i >= 0; i--) {
-            for (int j = 0; j < player.getInventory().getContainerSize(); j++) {
-                if (player.getInventory().getItem(j).getItem().equals(DiamondEconomyConfig.getCurrency(i))) {
-                    currencyCount += player.getInventory().getItem(j).getCount() * DiamondEconomyConfig.getCurrencyValues()[i];
-                    player.getInventory().setItem(j, new ItemStack(Items.AIR));
+            for (int j = 0; j < player.inventory.getContainerSize(); j++) {
+                if (player.inventory.getItem(j).getItem().equals(DiamondEconomyConfig.getCurrency(i))) {
+                    currencyCount += player.inventory.getItem(j).getCount() * DiamondEconomyConfig.getCurrencyValues()[i];
+                    player.inventory.setItem(j, new ItemStack(Items.AIR));
                 }
             }
         }

@@ -12,7 +12,11 @@ import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class ModifyCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> buildCommand(){
@@ -24,7 +28,7 @@ public class ModifyCommand {
                                         Commands.argument("amount", IntegerArgumentType.integer())
                                                 .executes(e -> {
                                                     int amount = IntegerArgumentType.getInteger(e, "amount");
-                                                    return modifyCommand(e, EntityArgument.getPlayers(e, "players").stream().toList(), amount);
+                                                    return modifyCommand(e, new ArrayList<>(EntityArgument.getPlayers(e, "players")), amount);
                                                 }))
                 );
     }
