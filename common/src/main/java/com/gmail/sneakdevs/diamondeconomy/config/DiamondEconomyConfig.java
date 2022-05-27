@@ -15,7 +15,7 @@ public class DiamondEconomyConfig implements ConfigData {
     @Comment("List of items used as currency")
     public String[] currencies = {"minecraft:diamond","minecraft:diamond_block"};
 
-    @Comment("Values of each currency in the same order, decimals not allowed (must be in ascending order)")
+    @Comment("Values of each currency in the same order, decimals not allowed (must be in ascending order unless greedyWithdraw is disabled)")
     public int[] currencyValues = {1,9};
 
     @Comment("Where the diamondeconomy.sqlite file is located (ex: \"C:/Users/example/Desktop/server/world/diamondeconomy.sqlite\")")
@@ -34,6 +34,9 @@ public class DiamondEconomyConfig implements ConfigData {
     @Comment("Names of the admin subcommands (null to disable command)")
     public String setCommandName = "set";
     public String modifyCommandName = "modify";
+
+    @Comment("Try to withdraw items using the most high value items possible (ex. diamond blocks then diamonds) \n If disabled withdraw will give player the first item in the list")
+    public boolean greedyWithdraw = true;
 
     public static Item getCurrency(int num) {
         return Registry.ITEM.get(ResourceLocation.tryParse(DiamondEconomyConfig.getInstance().currencies[num]));

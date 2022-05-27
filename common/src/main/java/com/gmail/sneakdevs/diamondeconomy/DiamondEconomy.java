@@ -36,20 +36,37 @@ public class DiamondEconomy {
     }
 
     public static int dropItem(int amount, ServerPlayer player) {
-        for (int i = DiamondEconomyConfig.getCurrencyValues().length - 1; i >= 0 && amount > 0; i--) {
-            while (amount >= DiamondEconomyConfig.getCurrencyValues()[i] * DiamondEconomyConfig.getCurrency(i).getMaxStackSize()) {
-                ItemEntity itemEntity = player.drop(new ItemStack(DiamondEconomyConfig.getCurrency(i), DiamondEconomyConfig.getCurrency(i).getMaxStackSize()), true);
-                assert itemEntity != null;
-                itemEntity.setNoPickUpDelay();
-                itemEntity.setOwner(player.getUUID());
-                amount -= DiamondEconomyConfig.getCurrency(i).getMaxStackSize() * DiamondEconomyConfig.getCurrencyValues()[i];
+        if (DiamondEconomyConfig.getInstance().greedyWithdraw) {
+            for (int i = DiamondEconomyConfig.getCurrencyValues().length - 1; i >= 0 && amount > 0; i--) {
+                while (amount >= DiamondEconomyConfig.getCurrencyValues()[i] * DiamondEconomyConfig.getCurrency(i).getMaxStackSize()) {
+                    ItemEntity itemEntity = player.drop(new ItemStack(DiamondEconomyConfig.getCurrency(i), DiamondEconomyConfig.getCurrency(i).getMaxStackSize()), true);
+                    assert itemEntity != null;
+                    itemEntity.setNoPickUpDelay();
+                    itemEntity.setOwner(player.getUUID());
+                    amount -= DiamondEconomyConfig.getCurrency(i).getMaxStackSize() * DiamondEconomyConfig.getCurrencyValues()[i];
+                }
+                if (amount >= DiamondEconomyConfig.getCurrencyValues()[i]) {
+                    ItemEntity itemEntity = player.drop(new ItemStack(DiamondEconomyConfig.getCurrency(i), amount/DiamondEconomyConfig.getCurrencyValues()[i]), true);
+                    assert itemEntity != null;
+                    itemEntity.setNoPickUpDelay();
+                    itemEntity.setOwner(player.getUUID());
+                    amount -= amount/DiamondEconomyConfig.getCurrencyValues()[i]*DiamondEconomyConfig.getCurrencyValues()[i];
+                }
             }
-            while (amount >= DiamondEconomyConfig.getCurrencyValues()[i]) {
-                ItemEntity itemEntity = player.drop(new ItemStack(DiamondEconomyConfig.getCurrency(i), amount/DiamondEconomyConfig.getCurrencyValues()[i]), true);
+        } else {
+            while (amount >= DiamondEconomyConfig.getCurrencyValues()[0] * DiamondEconomyConfig.getCurrency(0).getMaxStackSize()) {
+                ItemEntity itemEntity = player.drop(new ItemStack(DiamondEconomyConfig.getCurrency(0), DiamondEconomyConfig.getCurrency(0).getMaxStackSize()), true);
                 assert itemEntity != null;
                 itemEntity.setNoPickUpDelay();
                 itemEntity.setOwner(player.getUUID());
-                amount -= amount/DiamondEconomyConfig.getCurrencyValues()[i]*DiamondEconomyConfig.getCurrencyValues()[i];
+                amount -= DiamondEconomyConfig.getCurrency(0).getMaxStackSize() * DiamondEconomyConfig.getCurrencyValues()[0];
+            }
+            if (amount >= DiamondEconomyConfig.getCurrencyValues()[0]) {
+                ItemEntity itemEntity = player.drop(new ItemStack(DiamondEconomyConfig.getCurrency(0), amount/DiamondEconomyConfig.getCurrencyValues()[0]), true);
+                assert itemEntity != null;
+                itemEntity.setNoPickUpDelay();
+                itemEntity.setOwner(player.getUUID());
+                amount -= amount/DiamondEconomyConfig.getCurrencyValues()[0]*DiamondEconomyConfig.getCurrencyValues()[0];
             }
         }
         if (amount > 0) {
