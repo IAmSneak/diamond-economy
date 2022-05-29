@@ -1,4 +1,4 @@
-Basic economy for the fabric and forge modloaders using diamonds as currency. Uses the "/diamonds" command along with the following subcommands
+Basic economy for the fabric modloader using diamonds as currency. Uses the "/diamonds" command along with the following subcommands
 
 - balance [Optional: player] - tells user how much money the player has
 
@@ -18,10 +18,6 @@ Operator only subcommands:
 - take [players] [int] - takes $[int] from [players]
 
 
-Fabric:
+Downloads:
 - https://www.curseforge.com/minecraft/mc-mods/diamond-economy
-- https://modrinth.com/mod/diamond-economy
-
-Forge:
-- https://www.curseforge.com/minecraft/mc-mods/diamond-economy-forge
 - https://modrinth.com/mod/diamond-economy
