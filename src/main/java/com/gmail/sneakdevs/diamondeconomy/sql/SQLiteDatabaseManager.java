@@ -1,6 +1,7 @@
 package com.gmail.sneakdevs.diamondeconomy.sql;
 
 import com.gmail.sneakdevs.diamondeconomy.DiamondEconomy;
+import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 
 import java.io.File;
 import java.sql.*;
@@ -47,7 +48,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)){
             pstmt.setString(1, uuid);
             pstmt.setString(2, name);
-            pstmt.setInt(3, 0);
+            pstmt.setInt(3, DiamondEconomyConfig.getInstance().startingMoney);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             updateName(uuid, name);
@@ -131,6 +132,19 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         return false;
     }
 
+    public void setAllBalance(int money) {
+        String sql = "UPDATE diamonds SET money = ?";
+
+        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            if (money >= 0 && money < Integer.MAX_VALUE) {
+                pstmt.setInt(1, money);
+                pstmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public boolean changeBalance(String uuid, int money) {
         String sql = "UPDATE diamonds SET money = ? WHERE uuid = ?";
 
@@ -146,6 +160,16 @@ public class SQLiteDatabaseManager implements DatabaseManager {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void changeAllBalance(int money) {
+        String sql = "UPDATE diamonds SET money = money + " + money + " WHERE " + Integer.MAX_VALUE + " > money + " + money + " AND 0 <= money + " + money;
+
+        try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public String top(String uuid, int page){

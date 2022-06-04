@@ -38,6 +38,15 @@ public class DiamondEconomyConfig implements ConfigData {
     @Comment("Try to withdraw items using the most high value items possible (ex. diamond blocks then diamonds) \n If disabled withdraw will give player the first item in the list")
     public boolean greedyWithdraw = true;
 
+    @Comment("Money the player starts with when they first join the server")
+    public int startingMoney = 0;
+
+    @Comment("How often to add money to each player, in seconds (0 to disable)")
+    public int moneyAddTimer = 0;
+
+    @Comment("Amount of money to add each cycle")
+    public int moneyAddAmount = 0;
+
     public static Item getCurrency(int num) {
         return Registry.ITEM.get(ResourceLocation.tryParse(DiamondEconomyConfig.getInstance().currencies[num]));
     }

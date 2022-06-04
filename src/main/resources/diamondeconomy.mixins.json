@@ -4,7 +4,8 @@
   "package": "com.gmail.sneakdevs.diamondeconomy.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "PlayerListMixin_DiamondEconomy"
+    "PlayerListMixin_DiamondEconomy",
+    "ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
