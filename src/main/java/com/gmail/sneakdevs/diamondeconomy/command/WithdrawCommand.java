@@ -8,7 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public class WithdrawCommand {
@@ -27,9 +27,9 @@ public class WithdrawCommand {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         DatabaseManager dm = DiamondUtils.getDatabaseManager();
         if (dm.changeBalance(player.getStringUUID(), -amount)) {
-            ctx.getSource().sendSuccess(new TextComponent("Withdrew $" + (amount - DiamondUtils.dropItem(amount, player))), false);
+            ctx.getSource().sendSuccess(Component.literal("Withdrew $" + (amount - DiamondUtils.dropItem(amount, player))), false);
         } else {
-            ctx.getSource().sendSuccess(new TextComponent("You have less than $" + amount), false);
+            ctx.getSource().sendSuccess(Component.literal("You have less than $" + amount), false);
         }
         return 1;
     }

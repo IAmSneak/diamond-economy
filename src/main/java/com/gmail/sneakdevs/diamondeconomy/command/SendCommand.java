@@ -10,7 +10,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public class SendCommand {
@@ -32,10 +32,10 @@ public class SendCommand {
         long newValue = dm.getBalanceFromUUID(player.getStringUUID()) + amount;
         if (newValue < Integer.MAX_VALUE && dm.changeBalance(player1.getStringUUID(), -amount)) {
             dm.changeBalance(player.getStringUUID(), amount);
-            player.displayClientMessage(new TextComponent("You received $" + amount + " from " + player1.getName().getString()), false);
-            ctx.getSource().sendSuccess(new TextComponent("Sent $" + amount + " to " + player.getName().getString()), false);
+            player.displayClientMessage(Component.literal("You received $" + amount + " from " + player1.getName().getString()), false);
+            ctx.getSource().sendSuccess(Component.literal("Sent $" + amount + " to " + player.getName().getString()), false);
         } else {
-            ctx.getSource().sendSuccess(new TextComponent("Failed because that would go over the max value"), false);
+            ctx.getSource().sendSuccess(Component.literal("Failed because that would go over the max value"), false);
         }
         return 1;
     }

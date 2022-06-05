@@ -8,7 +8,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -32,7 +32,7 @@ public class DepositCommand {
             }
         }
         if (dm.changeBalance(player.getStringUUID(), currencyCount)) {
-            ctx.getSource().sendSuccess(new TextComponent("Added $" + currencyCount + " to your account"), false);
+            ctx.getSource().sendSuccess(Component.literal("Added $" + currencyCount + " to your account"), false);
         } else {
             DiamondUtils.dropItem(currencyCount, player);
         }

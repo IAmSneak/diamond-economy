@@ -9,7 +9,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 public class TopCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> buildCommand(){
@@ -26,7 +26,7 @@ public class TopCommand {
 
     public static int topCommand(CommandContext<CommandSourceStack> ctx, int page) throws CommandSyntaxException {
         DatabaseManager dm = DiamondUtils.getDatabaseManager();
-        ctx.getSource().sendSuccess(new TextComponent(dm.top(ctx.getSource().getPlayerOrException().getStringUUID(), page)), false);
+        ctx.getSource().sendSuccess(Component.literal(dm.top(ctx.getSource().getPlayerOrException().getStringUUID(), page)), false);
         return 1;
     }
 }

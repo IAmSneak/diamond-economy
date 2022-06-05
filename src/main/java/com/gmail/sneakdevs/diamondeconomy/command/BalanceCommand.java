@@ -1,6 +1,5 @@
 package com.gmail.sneakdevs.diamondeconomy.command;
 
-import com.gmail.sneakdevs.diamondeconomy.DiamondEconomy;
 import com.gmail.sneakdevs.diamondeconomy.DiamondUtils;
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import com.gmail.sneakdevs.diamondeconomy.sql.DatabaseManager;
@@ -10,7 +9,7 @@ import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 
 public class BalanceCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> buildCommand(){
@@ -35,7 +34,7 @@ public class BalanceCommand {
     public static int balanceCommand(CommandContext<CommandSourceStack> ctx, String player) {
         DatabaseManager dm = DiamondUtils.getDatabaseManager();
         int bal = dm.getBalanceFromName(player);
-        ctx.getSource().sendSuccess(new TextComponent((bal > -1) ? (player + " has $" + bal) : ("No account was found for player with the name \"" + player + "\"")), false);
+        ctx.getSource().sendSuccess(Component.literal((bal > -1) ? (player + " has $" + bal) : ("No account was found for player with the name \"" + player + "\"")), false);
         return 1;
     }
 }
