@@ -18,6 +18,15 @@ Operator only subcommands:
 - take [players] [int] - takes $[int] from [players]
 
 
+Placeholders:
+- %diamondeconomy:rank_from_player%
+- %diamondeconomy:rank_from_string_uuid%
+- %diamondeconomy:balance_from_player%
+- %diamondeconomy:balance_from_name%
+- %diamondeconomy:balance_from_rank%
+- %diamondeconomy:balance_from_string_uuid%
+
+
 Downloads:
 - https://www.curseforge.com/minecraft/mc-mods/diamond-economy
 - https://modrinth.com/mod/diamond-economy
