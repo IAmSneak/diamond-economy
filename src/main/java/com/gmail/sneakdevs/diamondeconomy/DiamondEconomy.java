@@ -3,8 +3,8 @@ package com.gmail.sneakdevs.diamondeconomy;
 import com.gmail.sneakdevs.diamondeconomy.command.DiamondEconomyCommands;
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import com.gmail.sneakdevs.diamondeconomy.sql.SQLiteDatabaseManager;
-import eu.pb4.placeholders.PlaceholderAPI;
-import eu.pb4.placeholders.PlaceholderResult;
+import eu.pb4.placeholders.api.PlaceholderResult;
+import eu.pb4.placeholders.api.Placeholders;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import net.fabricmc.api.ModInitializer;
@@ -28,44 +28,44 @@ public class DiamondEconomy implements ModInitializer {
     }
 
     public static void registerPlaceholders() {
-        PlaceholderAPI.register(new ResourceLocation(MODID, "rank_from_player"), (ctx) -> {
+        Placeholders.register(new ResourceLocation(MODID, "rank_from_player"), (ctx, arg) -> {
             if (ctx.hasPlayer()) {
-                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().playerRank(ctx.getPlayer().getStringUUID()) + ""));
+                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().playerRank(ctx.player().getStringUUID()) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        PlaceholderAPI.register(new ResourceLocation(MODID, "rank_from_string_uuid"), (ctx) -> {
-            if (ctx.hasArgument()) {
-                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().playerRank(ctx.getArgument()) + ""));
+        Placeholders.register(new ResourceLocation(MODID, "rank_from_string_uuid"), (ctx, arg) -> {
+            if (arg != null) {
+                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().playerRank(arg) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        PlaceholderAPI.register(new ResourceLocation(MODID, "balance_from_player"), (ctx) -> {
+        Placeholders.register(new ResourceLocation(MODID, "balance_from_player"), (ctx, arg) -> {
             if (ctx.hasPlayer()) {
-                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromUUID(ctx.getPlayer().getStringUUID()) + ""));
+                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromUUID(ctx.player().getStringUUID()) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        PlaceholderAPI.register(new ResourceLocation(MODID, "balance_from_string_uuid"), (ctx) -> {
-            if (ctx.hasArgument()) {
-                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromUUID(ctx.getArgument()) + ""));
+        Placeholders.register(new ResourceLocation(MODID, "balance_from_string_uuid"), (ctx, arg) -> {
+            if (arg != null) {
+                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromUUID(arg) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        PlaceholderAPI.register(new ResourceLocation(MODID, "balance_from_name"), (ctx) -> {
-            if (ctx.hasArgument()) {
-                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromName(ctx.getArgument()) + ""));
+        Placeholders.register(new ResourceLocation(MODID, "balance_from_name"), (ctx, arg) -> {
+            if (arg != null) {
+                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromName(arg) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        PlaceholderAPI.register(new ResourceLocation(MODID, "player_from_rank"), (ctx) -> {
-            if (ctx.hasArgument()) {
-                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().rank(Integer.parseInt(ctx.getArgument()))));
+        Placeholders.register(new ResourceLocation(MODID, "player_from_rank"), (ctx, arg) -> {
+            if (arg != null) {
+                return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().rank(Integer.parseInt(arg))));
             } else {
                 return PlaceholderResult.invalid();
             }
