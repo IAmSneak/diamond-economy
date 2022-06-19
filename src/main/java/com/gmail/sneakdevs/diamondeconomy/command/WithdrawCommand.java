@@ -1,6 +1,7 @@
 package com.gmail.sneakdevs.diamondeconomy.command;
 
 import com.gmail.sneakdevs.diamondeconomy.DiamondUtils;
+import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import com.gmail.sneakdevs.diamondeconomy.sql.DatabaseManager;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -13,7 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 public class WithdrawCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> buildCommand(){
-        return Commands.literal("withdraw")
+        return Commands.literal(DiamondEconomyConfig.getInstance().withdrawCommandName)
                 .then(
                         Commands.argument("amount", IntegerArgumentType.integer(1))
                                 .executes(e -> {
