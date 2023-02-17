@@ -83,7 +83,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         String sql = "SELECT uuid, money FROM diamonds WHERE uuid = '" + uuid + "'";
 
         try (Connection conn = this.connect(); Statement stmt  = conn.createStatement(); ResultSet rs    = stmt.executeQuery(sql)){
-            rs.next()
+            rs.next();
             return rs.getInt("money");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -95,7 +95,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         String sql = "SELECT uuid, name FROM diamonds WHERE uuid = '" + uuid + "'";
 
         try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
-            rs.next()
+            rs.next();
             return rs.getString("name");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -107,7 +107,7 @@ public class SQLiteDatabaseManager implements DatabaseManager {
         String sql = "SELECT name, money FROM diamonds WHERE name = '" + name + "'";
 
         try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
-            rs.next()
+            rs.next();
             return rs.getInt("money");
         } catch (SQLException e) {
             e.printStackTrace();
