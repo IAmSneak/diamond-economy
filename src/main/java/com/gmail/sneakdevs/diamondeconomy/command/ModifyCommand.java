@@ -18,7 +18,7 @@ import java.util.Collection;
 public class ModifyCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> buildCommand(){
         return Commands.literal(DiamondEconomyConfig.getInstance().modifyCommandName)
-                .requires((permission) -> permission.hasPermission(4))
+                .requires((permission) -> permission.hasPermission(DiamondEconomyConfig.getInstance().opCommandsPermissionLevel))
                 .then(
                         Commands.argument("players", EntityArgument.players())
                                 .then(

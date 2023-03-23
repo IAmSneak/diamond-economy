@@ -5,6 +5,7 @@ import com.gmail.sneakdevs.diamondeconomy.sql.DatabaseManager;
 import com.gmail.sneakdevs.diamondeconomy.sql.SQLiteDatabaseManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public class DiamondUtils {
@@ -17,43 +18,52 @@ public class DiamondUtils {
     }
 
     public static int dropItem(int amount, ServerPlayer player) {
+
+
         if (DiamondEconomyConfig.getInstance().greedyWithdraw) {
+
             for (int i = DiamondEconomyConfig.getCurrencyValues().length - 1; i >= 0 && amount > 0; i--) {
-                while (amount >= DiamondEconomyConfig.getCurrencyValues()[i] * DiamondEconomyConfig.getCurrency(i).getMaxStackSize()) {
-                    ItemEntity itemEntity = player.drop(new ItemStack(DiamondEconomyConfig.getCurrency(i), DiamondEconomyConfig.getCurrency(i).getMaxStackSize()), true);
-                    assert itemEntity != null;
+
+                int val = DiamondEconomyConfig.getCurrencyValues()[i];
+                int currSize = DiamondEconomyConfig.getCurrency(i).getMaxStackSize();
+                Item curr = DiamondEconomyConfig.getCurrency(i);
+
+                while (amount >= val * currSize) {
+                    ItemEntity itemEntity = player.drop(new ItemStack(curr, currSize), true);
                     itemEntity.setNoPickUpDelay();
-                    itemEntity.setOwner(player.getUUID());
-                    amount -= DiamondEconomyConfig.getCurrency(i).getMaxStackSize() * DiamondEconomyConfig.getCurrencyValues()[i];
+                    amount -= val * currSize;
                 }
-                if (amount >= DiamondEconomyConfig.getCurrencyValues()[i]) {
-                    ItemEntity itemEntity = player.drop(new ItemStack(DiamondEconomyConfig.getCurrency(i), amount/DiamondEconomyConfig.getCurrencyValues()[i]), true);
-                    assert itemEntity != null;
+
+                if (amount >= val) {
+                    ItemEntity itemEntity = player.drop(new ItemStack(curr, amount / val), true);
                     itemEntity.setNoPickUpDelay();
-                    itemEntity.setOwner(player.getUUID());
-                    amount -= amount/DiamondEconomyConfig.getCurrencyValues()[i]*DiamondEconomyConfig.getCurrencyValues()[i];
+                    amount -= amount / val * val;
                 }
+
             }
+
         } else {
-            while (amount >= DiamondEconomyConfig.getCurrencyValues()[0] * DiamondEconomyConfig.getCurrency(0).getMaxStackSize()) {
-                ItemEntity itemEntity = player.drop(new ItemStack(DiamondEconomyConfig.getCurrency(0), DiamondEconomyConfig.getCurrency(0).getMaxStackSize()), true);
-                assert itemEntity != null;
+
+            int val = DiamondEconomyConfig.getCurrencyValues()[0];
+            int currSize = DiamondEconomyConfig.getCurrency(0).getMaxStackSize();
+            Item curr = DiamondEconomyConfig.getCurrency(0);
+
+            while (amount >= val * currSize) {
+                ItemEntity itemEntity = player.drop(new ItemStack(curr, currSize), true);
                 itemEntity.setNoPickUpDelay();
-                itemEntity.setOwner(player.getUUID());
-                amount -= DiamondEconomyConfig.getCurrency(0).getMaxStackSize() * DiamondEconomyConfig.getCurrencyValues()[0];
+                amount -= val * currSize;
             }
-            if (amount >= DiamondEconomyConfig.getCurrencyValues()[0]) {
-                ItemEntity itemEntity = player.drop(new ItemStack(DiamondEconomyConfig.getCurrency(0), amount/DiamondEconomyConfig.getCurrencyValues()[0]), true);
-                assert itemEntity != null;
+
+            if (amount >= val) {
+                ItemEntity itemEntity = player.drop(new ItemStack(curr, amount / val), true);
                 itemEntity.setNoPickUpDelay();
-                itemEntity.setOwner(player.getUUID());
-                amount -= amount/DiamondEconomyConfig.getCurrencyValues()[0]*DiamondEconomyConfig.getCurrencyValues()[0];
+                amount -= amount / val * val;
             }
         }
-        if (amount > 0) {
-            DatabaseManager dm = getDatabaseManager();
-            dm.changeBalance(player.getStringUUID(), amount);
-        }
+
+        DatabaseManager dm = getDatabaseManager();
+        dm.changeBalance(player.getStringUUID(), amount);
+
         return amount;
     }
 }
