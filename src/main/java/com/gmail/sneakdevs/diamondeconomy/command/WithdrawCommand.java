@@ -28,9 +28,9 @@ public class WithdrawCommand {
         ServerPlayer player = ctx.getSource().getPlayerOrException();
         DatabaseManager dm = DiamondUtils.getDatabaseManager();
         if (dm.changeBalance(player.getStringUUID(), -amount)) {
-            ctx.getSource().sendSuccess(Component.literal("Withdrew $" + (amount - DiamondUtils.dropItem(amount, player))), false);
+            ctx.getSource().sendSuccess(() -> Component.literal("Withdrew $" + (amount - DiamondUtils.dropItem(amount, player))), false);
         } else {
-            ctx.getSource().sendSuccess(Component.literal("You have less than $" + amount), false);
+            ctx.getSource().sendSuccess(() -> Component.literal("You have less than $" + amount), false);
         }
         return 1;
     }

@@ -26,7 +26,8 @@ public class TopCommand {
 
     public static int topCommand(CommandContext<CommandSourceStack> ctx, int page) throws CommandSyntaxException {
         DatabaseManager dm = DiamondUtils.getDatabaseManager();
-        ctx.getSource().sendSuccess(Component.literal(dm.top(ctx.getSource().getPlayerOrException().getStringUUID(), page)), false);
+        String output = dm.top(ctx.getSource().getPlayerOrException().getStringUUID(), page);
+        ctx.getSource().sendSuccess(() -> Component.literal(output), false);
         return 1;
     }
 }

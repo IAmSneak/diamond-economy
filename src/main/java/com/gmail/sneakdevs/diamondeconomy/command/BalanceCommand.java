@@ -34,7 +34,7 @@ public class BalanceCommand {
     public static int balanceCommand(CommandContext<CommandSourceStack> ctx, String player) {
         DatabaseManager dm = DiamondUtils.getDatabaseManager();
         int bal = dm.getBalanceFromName(player);
-        ctx.getSource().sendSuccess(Component.literal((bal > -1) ? (player + " has $" + bal) : ("No account was found for player with the name \"" + player + "\"")), false);
+        ctx.getSource().sendSuccess(() -> Component.literal((bal > -1) ? (player + " has $" + bal) : ("No account was found for player with the name \"" + player + "\"")), false);
         return 1;
     }
 }

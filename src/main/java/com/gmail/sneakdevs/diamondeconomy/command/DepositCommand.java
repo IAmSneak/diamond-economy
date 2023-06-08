@@ -32,7 +32,8 @@ public class DepositCommand {
             }
         }
         if (dm.changeBalance(player.getStringUUID(), currencyCount)) {
-            ctx.getSource().sendSuccess(Component.literal("Added $" + currencyCount + " to your account"), false);
+            String output = "Added $" + currencyCount + " to your account";
+            ctx.getSource().sendSuccess(() -> Component.literal(output), false);
         } else {
             DiamondUtils.dropItem(currencyCount, player);
         }
