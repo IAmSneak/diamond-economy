@@ -2,6 +2,7 @@ package com.gmail.sneakdevs.diamondeconomy;
 
 import com.gmail.sneakdevs.diamondeconomy.command.DiamondEconomyCommands;
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
+import com.gmail.sneakdevs.diamondeconomy.sql.MySQLDatabaseManager;
 import com.gmail.sneakdevs.diamondeconomy.sql.SQLiteDatabaseManager;
 import eu.pb4.placeholders.api.PlaceholderResult;
 import eu.pb4.placeholders.api.Placeholders;
@@ -23,8 +24,13 @@ public class DiamondEconomy implements ModInitializer {
     public static ArrayList<String> tableRegistry = new ArrayList<>();
 
     public static void initServer(MinecraftServer server) {
-        DiamondUtils.registerTable("CREATE TABLE IF NOT EXISTS diamonds (uuid text PRIMARY KEY, name text NOT NULL, money integer DEFAULT 0);");
-        SQLiteDatabaseManager.createNewDatabase((DiamondEconomyConfig.getInstance().fileLocation != null) ? (new File(DiamondEconomyConfig.getInstance().fileLocation)) : server.getWorldPath(LevelResource.ROOT).resolve(DiamondEconomy.MODID + ".sqlite").toFile());
+        if (DiamondEconomyConfig.getInstance().databaseType.equals("mysql")) {
+            DiamondUtils.registerTable("CREATE TABLE IF NOT EXISTS diamonds (uuid text, name text NOT NULL, money integer DEFAULT 0, PRIMARY KEY (uuid(36)));");
+            MySQLDatabaseManager.createNewDatabase(DiamondEconomyConfig.getInstance().mysqlHost, DiamondEconomyConfig.getInstance().mysqlPort, DiamondEconomyConfig.getInstance().mysqlUsername, DiamondEconomyConfig.getInstance().mysqlPassword, DiamondEconomyConfig.getInstance().mysqlDatabase);
+        } else {
+            DiamondUtils.registerTable("CREATE TABLE IF NOT EXISTS diamonds (uuid text PRIMARY KEY, name text NOT NULL, money integer DEFAULT 0);");
+            SQLiteDatabaseManager.createNewDatabase((DiamondEconomyConfig.getInstance().fileLocation != null) ? (new File(DiamondEconomyConfig.getInstance().fileLocation)) : server.getWorldPath(LevelResource.ROOT).resolve(DiamondEconomy.MODID + ".sqlite").toFile());
+        }
     }
 
     public static void registerPlaceholders() {

@@ -24,6 +24,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
     modApi "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
     implementation(include("org.xerial:sqlite-jdbc:${project.sqlite_version}"))
+    implementation "mysql:mysql-connector-java:${project.mysql_version}"
     modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }

@@ -1,0 +1,25 @@
+{
+  "commands.balance.success": "%s 有 $%s",
+  "commands.balance.player_not_found": "未找到玩家 %s",
+
+  "commands.deposit.success": "成功向您的账号存入 $%s",
+
+  "commands.modify.multiple_players.success": "将%s名玩家的账户更改了 $%s",
+  "commands.modify.multiple_players.failure": "超过了 %s 账户的合法范围",
+
+  "commands.modify.everyone.success": "成功将每位玩家的账户更改了 %s",
+
+  "commands.modify.self.success": "将您的账户更改了 $%s",
+  "commands.modify.self.failure": "超过了您账户的合法范围",
+
+  "commands.send.sender.success": "成功汇款 $%s 给 %s",
+  "commands.send.sender.failure": "因为超过最大值而失败",
+  "commands.send.receiver.success": "您收到 $%s 从 %s",
+
+  "commands.set.multiple_players.success": "成功将%s名玩家的账户设置为 %s",
+  "commands.set.everyone.success": "成功将每位玩家的账户设置为 %s",
+  "commands.set.self.success": "成功将您的账户设置为 %s",
+
+  "commands.withdraw.success": "成功从您的账户取出 $%s",
+  "commands.withdraw.failure": "你的账户不足 $%s"
+}
