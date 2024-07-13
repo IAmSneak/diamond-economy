@@ -28,42 +28,42 @@ public class DiamondEconomy implements ModInitializer {
     }
 
     public static void registerPlaceholders() {
-        Placeholders.register(new ResourceLocation(MODID, "rank_from_player"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "rank_from_player"), (ctx, arg) -> {
             if (ctx.hasPlayer()) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().playerRank(ctx.player().getStringUUID()) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        Placeholders.register(new ResourceLocation(MODID, "rank_from_string_uuid"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "rank_from_string_uuid"), (ctx, arg) -> {
             if (arg != null) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().playerRank(arg) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        Placeholders.register(new ResourceLocation(MODID, "balance_from_player"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "balance_from_player"), (ctx, arg) -> {
             if (ctx.hasPlayer()) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromUUID(ctx.player().getStringUUID()) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        Placeholders.register(new ResourceLocation(MODID, "balance_from_string_uuid"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "balance_from_string_uuid"), (ctx, arg) -> {
             if (arg != null) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromUUID(arg) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        Placeholders.register(new ResourceLocation(MODID, "balance_from_name"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "balance_from_name"), (ctx, arg) -> {
             if (arg != null) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromName(arg) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        Placeholders.register(new ResourceLocation(MODID, "player_from_rank"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "player_from_rank"), (ctx, arg) -> {
             if (arg != null) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().rank(Integer.parseInt(arg))));
             } else {
