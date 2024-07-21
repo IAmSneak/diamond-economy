@@ -8,6 +8,8 @@ import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 @Config(name = DiamondEconomy.MODID)
 public class DiamondEconomyConfig implements ConfigData {
@@ -57,6 +59,10 @@ public class DiamondEconomyConfig implements ConfigData {
     @Comment("Amount of money to add each cycle")
     public int moneyAddAmount = 0;
 
+    @Comment("Symbol for the currency used in chat. You can specify a prefix and suffix")
+    public String currencySymbolPrefix = "$";
+    public String currencySymbolSuffix = "";
+
     @Comment("Permission level (1-4) of the op commands in diamond economy. Set to 2 to allow command blocks to use these commands.")
     public int opCommandsPermissionLevel = 4;
 
@@ -74,5 +80,12 @@ public class DiamondEconomyConfig implements ConfigData {
 
     public static DiamondEconomyConfig getInstance() {
         return AutoConfig.getConfigHolder(DiamondEconomyConfig.class).getConfig();
+    }
+
+    /* This is implemented with Component such that it can be extended to used custom styles, e.g. via config */
+    public static MutableComponent currencyToLiteral(int c) {
+        DiamondEconomyConfig inst = DiamondEconomyConfig.getInstance();
+        String currencyStr = inst.currencySymbolPrefix + c + inst.currencySymbolSuffix;
+        return Component.literal(currencyStr).setStyle(Style.EMPTY);
     }
 }

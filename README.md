@@ -2,7 +2,8 @@ Basic economy for the fabric modloader using diamonds as currency. Uses the "/di
 
 - balance [Optional: player] - tells user how much money the player has
 
-- deposit - takes currency from your inventory and adds it to your account
+- deposit - takes currency in your hand and adds it to your account
+  - deposit all [Optional: int] - takes all currency items from your inventory and adds it to your account. [int] specifies a maximum deposit amount
 
 - send [player] [int] - takes $[int] from your account and adds them to [player]'s account
 
