@@ -2,6 +2,7 @@ package com.gmail.sneakdevs.diamondeconomy;
 
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import com.gmail.sneakdevs.diamondeconomy.sql.DatabaseManager;
+import com.gmail.sneakdevs.diamondeconomy.sql.MySQLDatabaseManager;
 import com.gmail.sneakdevs.diamondeconomy.sql.SQLiteDatabaseManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -14,7 +15,11 @@ public class DiamondUtils {
     }
 
     public static DatabaseManager getDatabaseManager() {
-        return new SQLiteDatabaseManager();
+        if (DiamondEconomyConfig.getInstance().databaseType.equals("mysql")) {
+            return new MySQLDatabaseManager();
+        } else {
+            return new SQLiteDatabaseManager();
+        }
     }
 
     public static int dropItem(int amount, ServerPlayer player) {
@@ -25,7 +30,7 @@ public class DiamondUtils {
             for (int i = DiamondEconomyConfig.getCurrencyValues().length - 1; i >= 0 && amount > 0; i--) {
 
                 int val = DiamondEconomyConfig.getCurrencyValues()[i];
-                int currSize = DiamondEconomyConfig.getCurrency(i).getMaxStackSize();
+                int currSize = DiamondEconomyConfig.getCurrency(i).getDefaultMaxStackSize();
                 Item curr = DiamondEconomyConfig.getCurrency(i);
 
                 while (amount >= val * currSize) {
@@ -45,7 +50,7 @@ public class DiamondUtils {
         } else {
 
             int val = DiamondEconomyConfig.getCurrencyValues()[0];
-            int currSize = DiamondEconomyConfig.getCurrency(0).getMaxStackSize();
+            int currSize = DiamondEconomyConfig.getCurrency(0).getDefaultMaxStackSize();
             Item curr = DiamondEconomyConfig.getCurrency(0);
 
             while (amount >= val * currSize) {

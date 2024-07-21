@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerList.class)
 public class PlayerListMixin_DiamondEconomy {
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
-    private void diamondeconomy_onPlayerConnectMixin(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
+    private void diamondeconomy_placeNewPlayerMixin(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
         DatabaseManager dm = DiamondUtils.getDatabaseManager();
         String uuid = serverPlayer.getStringUUID();
         String name = serverPlayer.getName().getString();

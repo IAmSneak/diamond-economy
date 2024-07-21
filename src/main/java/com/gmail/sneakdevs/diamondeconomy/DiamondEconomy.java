@@ -2,6 +2,7 @@ package com.gmail.sneakdevs.diamondeconomy;
 
 import com.gmail.sneakdevs.diamondeconomy.command.DiamondEconomyCommands;
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
+import com.gmail.sneakdevs.diamondeconomy.sql.MySQLDatabaseManager;
 import com.gmail.sneakdevs.diamondeconomy.sql.SQLiteDatabaseManager;
 import eu.pb4.placeholders.api.PlaceholderResult;
 import eu.pb4.placeholders.api.Placeholders;
@@ -23,47 +24,52 @@ public class DiamondEconomy implements ModInitializer {
     public static ArrayList<String> tableRegistry = new ArrayList<>();
 
     public static void initServer(MinecraftServer server) {
-        DiamondUtils.registerTable("CREATE TABLE IF NOT EXISTS diamonds (uuid text PRIMARY KEY, name text NOT NULL, money integer DEFAULT 0);");
-        SQLiteDatabaseManager.createNewDatabase((DiamondEconomyConfig.getInstance().fileLocation != null) ? (new File(DiamondEconomyConfig.getInstance().fileLocation)) : server.getWorldPath(LevelResource.ROOT).resolve(DiamondEconomy.MODID + ".sqlite").toFile());
+        if (DiamondEconomyConfig.getInstance().databaseType.equals("mysql")) {
+            DiamondUtils.registerTable("CREATE TABLE IF NOT EXISTS diamonds (uuid text, name text NOT NULL, money integer DEFAULT 0, PRIMARY KEY (uuid(36)));");
+            MySQLDatabaseManager.createNewDatabase(DiamondEconomyConfig.getInstance().mysqlHost, DiamondEconomyConfig.getInstance().mysqlPort, DiamondEconomyConfig.getInstance().mysqlUsername, DiamondEconomyConfig.getInstance().mysqlPassword, DiamondEconomyConfig.getInstance().mysqlDatabase);
+        } else {
+            DiamondUtils.registerTable("CREATE TABLE IF NOT EXISTS diamonds (uuid text PRIMARY KEY, name text NOT NULL, money integer DEFAULT 0);");
+            SQLiteDatabaseManager.createNewDatabase((DiamondEconomyConfig.getInstance().fileLocation != null) ? (new File(DiamondEconomyConfig.getInstance().fileLocation)) : server.getWorldPath(LevelResource.ROOT).resolve(DiamondEconomy.MODID + ".sqlite").toFile());
+        }
     }
 
     public static void registerPlaceholders() {
-        Placeholders.register(new ResourceLocation(MODID, "rank_from_player"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "rank_from_player"), (ctx, arg) -> {
             if (ctx.hasPlayer()) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().playerRank(ctx.player().getStringUUID()) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        Placeholders.register(new ResourceLocation(MODID, "rank_from_string_uuid"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "rank_from_string_uuid"), (ctx, arg) -> {
             if (arg != null) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().playerRank(arg) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        Placeholders.register(new ResourceLocation(MODID, "balance_from_player"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "balance_from_player"), (ctx, arg) -> {
             if (ctx.hasPlayer()) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromUUID(ctx.player().getStringUUID()) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        Placeholders.register(new ResourceLocation(MODID, "balance_from_string_uuid"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "balance_from_string_uuid"), (ctx, arg) -> {
             if (arg != null) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromUUID(arg) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        Placeholders.register(new ResourceLocation(MODID, "balance_from_name"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "balance_from_name"), (ctx, arg) -> {
             if (arg != null) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().getBalanceFromName(arg) + ""));
             } else {
                 return PlaceholderResult.invalid();
             }
         });
-        Placeholders.register(new ResourceLocation(MODID, "player_from_rank"), (ctx, arg) -> {
+        Placeholders.register(ResourceLocation.fromNamespaceAndPath(MODID, "player_from_rank"), (ctx, arg) -> {
             if (arg != null) {
                 return PlaceholderResult.value(Component.literal(DiamondUtils.getDatabaseManager().rank(Integer.parseInt(arg))));
             } else {
