@@ -18,8 +18,18 @@ public class DiamondEconomyConfig implements ConfigData {
     @Comment("Values of each currency in the same order, decimals not allowed (must be in ascending order unless greedyWithdraw is disabled)")
     public int[] currencyValues = {1,9};
 
-    @Comment("Where the diamondeconomy.sqlite file is located (ex: \"C:/Users/example/Desktop/server/world/diamondeconomy.sqlite\")")
+    @Comment("Type of Database to use (sqlite or mysql)")
+    public String databaseType = "sqlite";
+
+    @Comment("Where the diamondeconomy.sqlite file is located (null to use default location, only used if databaseType is sqlite) (ex: \"C:/Users/example/Desktop/server/world/diamondeconomy.sqlite\")")
     public String fileLocation = null;
+
+    @Comment("MySQL database credentials (only used if databaseType is mysql)")
+    public String mysqlHost = "localhost";
+    public int mysqlPort = 3306;
+    public String mysqlUsername = "root";
+    public String mysqlPassword = "password";
+    public String mysqlDatabase = "diamondeconomy";
 
     @Comment("Name of the base command (null to disable base command)")
     public String commandName = "diamonds";

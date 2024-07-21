@@ -1,0 +1,25 @@
+{
+  "commands.balance.success": "%s has $%s",
+  "commands.balance.player_not_found": "No account was found for player with the name %s",
+
+  "commands.deposit.success": "Added $%s to your account",
+
+  "commands.modify.multiple_players.success": "Modified %s players' money by $%s",
+  "commands.modify.multiple_players.failure": "That would go out of the valid money range for %s",
+
+  "commands.modify.everyone.success": "Modified everyone's account by $%s",
+
+  "commands.modify.self.success": "Modified your money by $%s",
+  "commands.modify.self.failure": "That would go out of your valid money range",
+
+  "commands.send.sender.success": "Sent $%s to %s",
+  "commands.send.sender.failure": "Failed because that would go over the max value",
+  "commands.send.receiver.success": "You received $%s from %s",
+
+  "commands.set.multiple_players.success": "Updated balance of %s players to %s",
+  "commands.set.everyone.success": "All accounts balance to %s",
+  "commands.set.self.success": "Updated your balance to %s",
+
+  "commands.withdraw.success": "Withdrew $%s",
+  "commands.withdraw.failure": "You have less than $%s"
+}

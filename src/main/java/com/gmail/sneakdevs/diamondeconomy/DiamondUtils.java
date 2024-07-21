@@ -2,6 +2,7 @@ package com.gmail.sneakdevs.diamondeconomy;
 
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import com.gmail.sneakdevs.diamondeconomy.sql.DatabaseManager;
+import com.gmail.sneakdevs.diamondeconomy.sql.MySQLDatabaseManager;
 import com.gmail.sneakdevs.diamondeconomy.sql.SQLiteDatabaseManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -14,7 +15,11 @@ public class DiamondUtils {
     }
 
     public static DatabaseManager getDatabaseManager() {
-        return new SQLiteDatabaseManager();
+        if (DiamondEconomyConfig.getInstance().databaseType.equals("mysql")) {
+            return new MySQLDatabaseManager();
+        } else {
+            return new SQLiteDatabaseManager();
+        }
     }
 
     public static int dropItem(int amount, ServerPlayer player) {
