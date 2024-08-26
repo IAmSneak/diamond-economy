@@ -49,17 +49,17 @@ public class SetCommand {
     public static int setCommand(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> players, int amount) {
         DatabaseManager dm = DiamondUtils.getDatabaseManager();
         players.forEach(player -> dm.setBalance(player.getStringUUID(), amount));
-        ctx.getSource().sendSuccess(() -> Component.literal("Updated balance of " + players.size() + " players to " + amount), true);
+        ctx.getSource().sendSuccess(() -> Component.literal("Updated balance of " + players.size() + " players to " + DiamondUtils.valueString(amount)), true);
         return players.size();
     }
 
     public static int setCommand(CommandContext<CommandSourceStack> ctx, int amount, boolean shouldModifyAll) throws CommandSyntaxException {
         if (shouldModifyAll) {
             DiamondUtils.getDatabaseManager().setAllBalance(amount);
-            ctx.getSource().sendSuccess(() -> Component.literal("All accounts balance to " + amount), true);
+            ctx.getSource().sendSuccess(() -> Component.literal("Set all accounts balance to " + DiamondUtils.valueString(amount)), true);
         } else {
             DiamondUtils.getDatabaseManager().setBalance(ctx.getSource().getPlayerOrException().getStringUUID(), amount);
-            ctx.getSource().sendSuccess(() -> Component.literal("Updated your balance to " + amount), true);
+            ctx.getSource().sendSuccess(() -> Component.literal("Updated your balance to " + DiamondUtils.valueString(amount)), true);
         }
         return 1;
     }

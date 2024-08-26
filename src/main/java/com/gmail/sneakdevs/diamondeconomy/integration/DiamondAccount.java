@@ -10,7 +10,6 @@ import eu.pb4.common.economy.api.EconomyTransaction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 import java.util.UUID;
 
@@ -51,7 +50,7 @@ public class DiamondAccount implements EconomyAccount {
         if (newBal >= Integer.MAX_VALUE) {
             return new EconomyTransaction.Simple(
                     false,
-                    Component.literal("Integer overflow ($" + newBal + " > $" + Integer.MAX_VALUE + ")"),
+                    Component.literal("Integer overflow (" + DiamondUtils.valueString(newBal) + " > " + Integer.MAX_VALUE + ")"),
                     currentBal,
                     currentBal,
                     0,
@@ -61,7 +60,7 @@ public class DiamondAccount implements EconomyAccount {
 
         return new EconomyTransaction.Simple(
                 true,
-                Component.literal("Added $" + value + " to the account"),
+                Component.literal("Added " + DiamondUtils.valueString(value) + " to the account"),
                 newBal,
                 currentBal,
                 value,
@@ -76,7 +75,7 @@ public class DiamondAccount implements EconomyAccount {
         if (newBal < 0) {
             return new EconomyTransaction.Simple(
                     false,
-                    Component.literal("Not enough money to take $" + value + "from your account of $" + currentBal),
+                    Component.literal("Not enough money to take " + DiamondUtils.valueString(value) + "from your account of " + DiamondUtils.valueString(currentBal)),
                     currentBal,
                     currentBal,
                     0,
@@ -86,7 +85,7 @@ public class DiamondAccount implements EconomyAccount {
 
         return new EconomyTransaction.Simple(
                 true,
-                Component.literal("Added $" + value + " to your account"),
+                Component.literal("Added " + DiamondUtils.valueString(value) + " to your account"),
                 newBal,
                 currentBal,
                 value,
@@ -111,6 +110,6 @@ public class DiamondAccount implements EconomyAccount {
 
     @Override
     public ItemStack accountIcon() {
-        return DiamondEconomyConfig.getCurrency(0).getDefaultInstance();
+        return DiamondEconomyConfig.getCurrencyIcon().getDefaultInstance();
     }
 }

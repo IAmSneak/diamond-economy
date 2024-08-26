@@ -1,6 +1,7 @@
 package com.gmail.sneakdevs.diamondeconomy.integration;
 
 import com.gmail.sneakdevs.diamondeconomy.DiamondEconomy;
+import com.gmail.sneakdevs.diamondeconomy.DiamondUtils;
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import eu.pb4.common.economy.api.EconomyCurrency;
 import eu.pb4.common.economy.api.EconomyProvider;
@@ -24,13 +25,16 @@ public class DiamondCurrency implements EconomyCurrency {
 
     @Override
     public String formatValue(long value, boolean precise) {
-        return "$" + value;
+        return DiamondUtils.valueString(value);
     }
 
     @Override
     public long parseValue(String value) throws NumberFormatException {
-        if (value.startsWith("$")) {
-            value = value.substring(1);
+        if (value.startsWith(DiamondEconomyConfig.getInstance().currencyPrefix)) {
+            value = value.substring(DiamondEconomyConfig.getInstance().currencyPrefix.length());
+            if (value.endsWith(DiamondEconomyConfig.getInstance().currencySuffix)) {
+                value = value.substring(0, value.length() - DiamondEconomyConfig.getInstance().currencySuffix.length() - 1);
+            }
         } else {
             return 0;
         }
@@ -45,6 +49,6 @@ public class DiamondCurrency implements EconomyCurrency {
 
     @Override
     public ItemStack icon() {
-        return DiamondEconomyConfig.getCurrency(0).getDefaultInstance();
+        return DiamondEconomyConfig.getCurrencyIcon().getDefaultInstance();
     }
 }

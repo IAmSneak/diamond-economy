@@ -53,9 +53,9 @@ public class ModifyCommand {
     public static int modifyCommand(CommandContext<CommandSourceStack> ctx, int amount, boolean shouldModifyAll) throws CommandSyntaxException {
         if (shouldModifyAll) {
             DiamondUtils.getDatabaseManager().changeAllBalance(amount);
-            ctx.getSource().sendSuccess(() -> Component.literal(("Modified everyones account by $" + amount)), true);
+            ctx.getSource().sendSuccess(() -> Component.literal(("Modified everyones account by " + DiamondUtils.valueString(amount))), true);
         } else {
-            String output = (DiamondUtils.getDatabaseManager().changeBalance(ctx.getSource().getPlayerOrException().getStringUUID(), amount)) ? ("Modified your money by $" + amount) : ("That would go out of your valid money range");
+            String output = (DiamondUtils.getDatabaseManager().changeBalance(ctx.getSource().getPlayerOrException().getStringUUID(), amount)) ? ("Modified your money by " + DiamondUtils.valueString(amount)) : ("That would go out of your valid money range");
             ctx.getSource().sendSuccess(() -> Component.literal(output), true);
         }
         return 1;

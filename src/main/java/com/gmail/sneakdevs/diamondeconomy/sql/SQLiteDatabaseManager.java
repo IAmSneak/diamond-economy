@@ -1,5 +1,6 @@
 package com.gmail.sneakdevs.diamondeconomy.sql;
 
+import com.gmail.sneakdevs.diamondeconomy.CurrencyType;
 import com.gmail.sneakdevs.diamondeconomy.DiamondEconomy;
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 
@@ -230,5 +231,232 @@ public class SQLiteDatabaseManager implements DatabaseManager {
             e.printStackTrace();
         }
         return -1;
+    }
+
+    public boolean addCurrency(String item, int sellValue, int buyvalue, boolean incurrencylist, boolean canbuy, boolean cansell, boolean init) {
+        if (init || !item.equals(DiamondEconomyConfig.getInstance().mainCurrency)) {
+            String sql = "INSERT INTO currencies(item,sellvalue,buyvalue,incurrencylist,canbuy,cansell) VALUES(?,?,?,?,?,?)";
+            try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, item);
+                pstmt.setInt(2, sellValue);
+                pstmt.setInt(3, buyvalue);
+                pstmt.setBoolean(4, incurrencylist);
+                pstmt.setBoolean(5, canbuy);
+                pstmt.setBoolean(6, cansell);
+                pstmt.executeUpdate();
+                return true;
+            } catch (SQLException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public boolean setSellValue(String item, int sellValue) {
+        if (!item.equals(DiamondEconomyConfig.getInstance().mainCurrency)) {
+            String sql = "UPDATE currencies SET sellvalue = ? WHERE item = ?";
+            try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, sellValue);
+                pstmt.setString(2, item);
+                pstmt.executeUpdate();
+                return true;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean setBuyValue(String item, int buyValue) {
+        if (!item.equals(DiamondEconomyConfig.getInstance().mainCurrency)) {
+            String sql = "UPDATE currencies SET buyvalue = ? WHERE item = ?";
+            try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, buyValue);
+                pstmt.setString(2, item);
+                pstmt.executeUpdate();
+                return true;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean setInCurrencyList(String item, boolean inCurrencyList) {
+        if (!item.equals(DiamondEconomyConfig.getInstance().mainCurrency)) {
+            String sql = "UPDATE currencies SET incurrencylist = ? WHERE item = ?";
+            try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setBoolean(1, inCurrencyList);
+                pstmt.setString(2, item);
+                pstmt.executeUpdate();
+                return true;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean setCanBuy(String item, boolean canBuy) {
+        if (!item.equals(DiamondEconomyConfig.getInstance().mainCurrency)) {
+            String sql = "UPDATE currencies SET canbuy = ? WHERE item = ?";
+            try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setBoolean(1, canBuy);
+                pstmt.setString(2, item);
+                pstmt.executeUpdate();
+                return true;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean setCanSell(String item, boolean canSell) {
+        if (!item.equals(DiamondEconomyConfig.getInstance().mainCurrency)) {
+            String sql = "UPDATE currencies SET cansell = ? WHERE item = ?";
+            try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setBoolean(1, canSell);
+                pstmt.setString(2, item);
+                pstmt.executeUpdate();
+                return true;
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isCurrency(String item) {
+        String sql = "SELECT item FROM currencies WHERE item = '" + item + "'";
+
+        try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
+            rs.next();
+            return (rs.getString("item")).equals(item);
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public int getSellValue(String item) {
+        String sql = "SELECT sellvalue FROM currencies WHERE item = '" + item + "'";
+
+        try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
+            rs.next();
+            return rs.getInt("sellvalue");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    @Override
+    public int getBuyValue(String item) {
+        String sql = "SELECT buyvalue FROM currencies WHERE item = '" + item + "'";
+
+        try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
+            rs.next();
+            return rs.getInt("buyvalue");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    @Override
+    public boolean getInCurrencyList(String item) {
+        String sql = "SELECT incurrencylist FROM currencies WHERE item = '" + item + "'";
+
+        try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
+            rs.next();
+            return rs.getBoolean("incurrencylist");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean getCanBuy(String item) {
+        String sql = "SELECT canbuy FROM currencies WHERE item = '" + item + "'";
+
+        try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
+            rs.next();
+            return rs.getBoolean("canbuy");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean getCanSell(String item) {
+        String sql = "SELECT cansell FROM currencies WHERE item = '" + item + "'";
+
+        try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
+            rs.next();
+            return rs.getBoolean("cansell");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean removeCurrency(String item) {
+        if (!item.equals(DiamondEconomyConfig.getInstance().mainCurrency)) {
+            String sql = "DELETE FROM currencies WHERE item = ?";
+            try (Connection conn = this.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, item);
+                pstmt.executeUpdate();
+                return true;
+            } catch (SQLException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public CurrencyType getCurrency(String item) {
+        String sql = "SELECT item, sellvalue, buyvalue, incurrencylist, canbuy, cansell FROM currencies WHERE item = '" + item + "'";
+        try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
+            rs.next();
+            int sellValue = rs.getInt("sellvalue");
+            int buyValue = rs.getInt("buyvalue");
+            boolean inCurrencyList = rs.getBoolean("incurrencylist");
+            boolean canBuy = rs.getBoolean("canbuy");
+            boolean canSell = rs.getBoolean("cansell");
+            //System.out.println("item: " + item + ", depositVal: " + sellValue + ", withdrawVal: " + buyValue + ", inCurrencyList: " + inCurrencyList + ", canBuy: " + canBuy + ", canSell: " + canSell);
+            return new CurrencyType(item, sellValue, buyValue, inCurrencyList, canBuy, canSell);
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public CurrencyType getCurrency(int i) {
+        String sql = "SELECT item, sellvalue, buyvalue, incurrencylist, canbuy, cansell FROM currencies ORDER BY buyvalue DESC";
+        try (Connection conn = this.connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)){
+            for (int j = -1; j < i; j++) {
+                rs.next();
+            }
+            String item = rs.getString("item");
+            int sellValue = rs.getInt("sellvalue");
+            int buyValue = rs.getInt("buyvalue");
+            boolean inCurrencyList = rs.getBoolean("incurrencylist");
+            boolean canBuy = rs.getBoolean("canbuy");
+            boolean canSell = rs.getBoolean("cansell");
+            //System.out.println("item: " + item + ", depositVal: " + sellValue + ", withdrawVal: " + buyValue + ", inCurrencyList: " + inCurrencyList + ", canBuy: " + canBuy + ", canSell: " + canSell);
+            return new CurrencyType(item, sellValue, buyValue, inCurrencyList, canBuy, canSell);
+        } catch (SQLException e) {
+            return null;
+        }
     }
 }
