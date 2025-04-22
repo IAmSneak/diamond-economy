@@ -104,7 +104,7 @@ public class DiamondUtils {
         int i = 0;
         while (true) {
             CurrencyType currency = DiamondUtils.getDatabaseManager().getCurrency(i);
-            if (currency == null) {
+            if (currency == null || currency.getItem() == null) {
                 break;
             }
             if (currency.isInCurrencyList()) {

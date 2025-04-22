@@ -27,7 +27,11 @@ public class CurrencyType {
         this.inCurrencyList = inCurrencyList;
         this.sellValue = sellValue;
         this.buyValue = buyValue;
-        this.item = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(item));
+        if (item != null) {
+            this.item = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(item));
+        } else {
+            this.item = null;
+        }
     }
 
     public Item getItem(){
